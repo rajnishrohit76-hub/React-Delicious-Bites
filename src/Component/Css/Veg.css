@@ -1,0 +1,289 @@
+/* Uniform Card – Clean & Responsive */
+.vegItems-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    padding: 6px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    background: #fff;
+    transition: 0.3s ease;
+}
+
+.vegItems-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+}
+
+.vegItems-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+/* Content takes full space, consistent layout */
+.vegItems-card .card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Title neat */
+.card-title {
+    font-size: 15px;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+/* Text trimmed for equal size layout */
+.vegItems-card p {
+    font-size: 13px;
+    line-height: 1.3;
+    height: 38px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Rating & Add to cart row */
+.vegItems-card .card-body .d-flex {
+    margin-top: auto;
+}
+
+/* Fade Animation */
+.fade-animation {
+    animation: fadeIn 0.35s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Smooth scaling card animation */
+.animated-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.animated-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+
+/* Modern Pagination */
+.modern-pagination .page-link {
+    border-radius: 10px;
+    margin: 0 5px;
+    padding: 10px 18px;
+    font-size: 1rem;
+    transition: 0.3s ease;
+}
+
+.modern-pagination .page-item.active .page-link {
+    background-color: #0d6efd;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0px 4px 10px rgba(13, 110, 253, 0.4);
+}
+
+.modern-pagination .page-link:hover {
+    background-color: #0d6efd;
+    color: white;
+    transform: translateY(-3px);
+}
+
+/* Slider */
+
+.price-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 5px;
+  background: linear-gradient(
+    to right,
+    #ff4747 0%,
+    #ff4747 var(--slider-fill),
+    #d1d1d1 var(--slider-fill),
+    #d1d1d1 100%
+  );
+  outline: none;
+  transition: background 0.3s ease;
+}
+
+/* Slider thumb */
+.price-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  background: #ff2b2b;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0px 0px 6px rgba(255, 0, 0, 0.5);
+}
+
+
+/* 🌟 Updated Filter Box Styling (FULL WIDTH, CLEAN, FITTED) */
+.filter-box {
+    width: 100%;                     /* FIXED! No more pushing cards down */
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 18px 22px;
+    margin: 0 auto 25px auto;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e9e9e9;
+}
+
+/* SEARCH + DROPDOWN container */
+.filter-top-row {
+    display: flex;
+    justify-content: space-between;  /* search left - dropdown right */
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;                 /* responsive */
+}
+
+/* Small & Adorable Search Box */
+.filter-search {
+    width: 200px;
+    height: 34px;
+    padding: 5px 10px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    transition: 0.2s ease;
+}
+
+.filter-search:focus {
+    border-color: #ff4d4d;
+    box-shadow: 0 0 5px rgba(255, 77, 77, 0.4);
+}
+
+
+/* Smaller & Attractive Items Dropdown */
+.items-dropdown {
+    width: 120px;
+    height: 34px;
+    font-size: 14px;
+    padding: 5px 10px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    background: white;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.items-dropdown:hover {
+    border-color: #ff4d4d;
+}
+
+
+
+/* Compact Filter Row */
+.filter-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 12px 0;
+    padding: 0 5px;
+}
+
+
+
+/* Price checkbox row */
+.price-checkbox-row {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+/* Checkbox Styling */
+.custom-checkbox-label {
+    padding: 5px 12px;
+    border-radius: 14px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    background: #fff;
+    font-size: 13px;
+    transition: 0.3s ease;
+}
+
+.custom-checkbox-label:hover {
+    background: #ffe8e8;
+    border-color: #ff4d4d;
+}
+
+.custom-checkbox-label input {
+    margin-right: 5px;
+}
+
+
+
+
+/* CARD FIX — Smaller, Neat, Clean */
+.item-card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    padding: 4px;
+    transition: 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.item-card img {
+    height: 160px;
+    object-fit: cover;
+}
+
+.item-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.card-title {
+    font-size: 15px;
+}
+
+
+
+/* Fade Animation */
+.fade-animation {
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+.vegItems-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.vegItems-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+
+.vegItems-card .card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}

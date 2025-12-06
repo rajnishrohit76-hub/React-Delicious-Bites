@@ -1,0 +1,57 @@
+/* ===========================
+   COUPON INPUT SECTION
+=========================== */
+
+.coupon-box {
+  display: flex;
+  gap: 12px;
+  background: #ffffff;
+  padding: 10px;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  align-items: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.coupon-input {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #dcdcdc;
+  font-size: 16px;
+  outline: none;
+  transition: 0.2s ease;
+}
+
+.coupon-input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 6px rgba(0, 123, 255, 0.3);
+}
+
+/* APPLY BUTTON */
+.coupon-btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(45deg, #007bff, #0056d1);
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.coupon-btn:hover {
+  background: linear-gradient(45deg, #005ad1, #0040a8);
+  transform: translateY(-2px);
+}
+
+.coupon-btn:active {
+  transform: scale(0.97);
+}
+
+/* Fade Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}

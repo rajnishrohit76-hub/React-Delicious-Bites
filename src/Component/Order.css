@@ -1,0 +1,122 @@
+.order-wrapper {
+  padding: 30px 10%;
+  background: #f1f3f6;
+  min-height: 100vh;
+  font-family: "Poppins", sans-serif;
+}
+
+.order-title {
+  font-size: 27px;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 20px;
+}
+
+.order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Row Card */
+.order-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  transition: 0.25s ease;
+}
+
+.order-row:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+/* Left Info */
+.order-info-box p {
+  margin: 3px 0;
+  font-size: 14px;
+  color: #444;
+}
+
+.order-id b {
+  color: #000;
+}
+
+/* Price Section */
+.order-price-details {
+  text-align: right;
+  font-size: 14px;
+  color: #555;
+  min-width: 180px;
+}
+
+.order-price-details p {
+  margin: 2px 0;
+}
+
+.order-price-details span {
+  font-weight: 600;
+}
+
+.final-amount {
+  font-size: 16px;
+  font-weight: 700 !important;
+  color: #000;
+}
+
+/* Status + Button */
+.order-status-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+}
+
+.status-label {
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.status-label.delivered {
+  background: #eaffea;
+  color: #219150;
+}
+
+/* Button */
+.reorder-btn {
+  padding: 6px 14px;
+  background: #ff5a5f;
+  border: none;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.25s;
+  font-weight: 600;
+}
+
+.reorder-btn:hover {
+  background: #d74448;
+}
+
+/* Empty & Error */
+.center-text {
+  text-align: center;
+  font-size: 16px;
+}
+
+.error-text {
+  color: red;
+}
+
+.empty-message {
+  color: #777;
+  font-size: 18px;
+  margin-top: 50px;
+}
