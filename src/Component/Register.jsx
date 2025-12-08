@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser } from "../store";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import "./Css/Register.css";
 
 const Register = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+
   const { loading, error, token } = useSelector((state) => state.auth);
 
   const {
     register,
     handleSubmit,
-    reset,
     watch,
-    trigger,
     formState: { errors },
   } = useForm();
 
@@ -37,14 +38,9 @@ const Register = () => {
       return;
     }
 
-    data.hobbies = Object.keys(data.hobbies || {}).filter(
-      (key) => data.hobbies[key]
-    );
-
-    delete data.confirmPassword; // Don't send confirmPassword to backend
+    delete data.confirmPassword;
 
     dispatch(registerUser(data));
-    reset();
   };
 
   useEffect(() => {
@@ -52,173 +48,118 @@ const Register = () => {
   }, [token, navigate]);
 
   return (
-    <div className="container mt-5 d-flex justify-content-center">
-      <div className="card shadow p-4" style={{ width: "450px" }}>
-        <h3 className="text-center mb-3">Create Account</h3>
+    <div className="login-page">
+      <div className="ring" key={location.pathname}>
+        <i style={{ "--clr": "#00ff0a" }}></i>
+        <i style={{ "--clr": "#ff0057" }}></i>
+        <i style={{ "--clr": "#fffd44" }}></i>
 
-        {error && <div className="alert alert-danger">{error}</div>}
+        <div className="login">
+          <h2>Create Account</h2>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-          {/* Name */}
-          <div className="mb-3">
-            <label className="form-label">Full Name</label>
-            <input
-              className="form-control"
-              {...register("name", { required: "Name is required" })}
-            />
-            {errors.name && <small className="text-danger">{errors.name.message}</small>}
+          {error && <p className="text-danger">{error}</p>}
+
+          <form onSubmit={handleSubmit(onSubmit)} style={{ width: "100%" }}>
+            <div className="inputBx">
+              <input
+                placeholder="Full Name"
+                {...register("name", { required: "Name is required" })}
+              />
+            </div>
+            {errors.name && <p className="text-danger">{errors.name.message}</p>}
+
+            <div className="inputBx">
+              <input
+                type="email"
+                placeholder="Email"
+                {...register("email", {
+                  required: "Email is required",
+                  pattern: { value: /^\S+@\S+$/i, message: "Invalid email" },
+                })}
+              />
+            </div>
+            {errors.email && <p className="text-danger">{errors.email.message}</p>}
+
+            <div className="inputBx">
+              <input
+                type="password"
+                placeholder="Password"
+                {...register("password", {
+                  required: "Password is required",
+                  minLength: { value: 6, message: "Min 6 characters" },
+                })}
+              />
+            </div>
+            {errors.password && <p className="text-danger">{errors.password.message}</p>}
+
+            <div className="inputBx">
+              <input
+                type="password"
+                placeholder="Confirm Password"
+                {...register("confirmPassword", { required: "Confirm your password" })}
+                onBlur={handleConfirmPasswordBlur}
+              />
+            </div>
+            {passwordMatchError && <p className="text-danger">{passwordMatchError}</p>}
+
+            <div className="inputBx">
+              <input
+                placeholder="Phone Number"
+                {...register("phone", {
+                  required: "Phone number is required",
+                  pattern: { value: /^[0-9]{10}$/, message: "Enter valid 10-digit number" },
+                })}
+              />
+            </div>
+            {errors.phone && <p className="text-danger">{errors.phone.message}</p>}
+
+            <div className="inputBx">
+              <input
+                placeholder="Address"
+                {...register("address", { required: "Address is required", minLength: { value: 5, message: "Min 5 characters" } })}
+              />
+            </div>
+            {errors.address && <p className="text-danger">{errors.address.message}</p>}
+
+            <div className="inputBx">
+              <select {...register("gender", { required: "Gender is required" })}>
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            {errors.gender && <p className="text-danger">{errors.gender.message}</p>}
+
+            <div className="inputBx">
+              <select {...register("country", { required: "Country is required" })}>
+                <option value="">Select Country</option>
+                <option value="India">India</option>
+                <option value="USA">USA</option>
+                <option value="UK">UK</option>
+                <option value="Canada">Canada</option>
+              </select>
+            </div>
+            {errors.country && <p className="text-danger">{errors.country.message}</p>}
+
+            <div className="inputBx">
+              <input type="submit" value={loading ? "Creating..." : "Register"} disabled={loading} />
+            </div>
+          </form>
+
+          <div className="links">
+            <a onClick={() => navigate("/login")} style={{ cursor: "pointer" }}>
+              Already have an account? Sign In
+            </a>
           </div>
-
-          {/* Email */}
-          <div className="mb-3">
-            <label className="form-label">Email</label>
-            <input
-              type="email"
-              className="form-control"
-              {...register("email", {
-                required: "Email is required",
-                pattern: {
-                  value: /^\S+@\S+$/i,
-                  message: "Invalid email format",
-                },
-              })}
-            />
-            {errors.email && <small className="text-danger">{errors.email.message}</small>}
-          </div>
-
-          {/* Password */}
-          <div className="mb-3">
-            <label className="form-label">Password</label>
-            <input
-              type="password"
-              className="form-control"
-              {...register("password", {
-                required: "Password is required",
-                minLength: { value: 6, message: "Min 6 characters" },
-              })}
-              onBlur={() => trigger("password")}
-            />
-            {errors.password && <small className="text-danger">{errors.password.message}</small>}
-          </div>
-
-          {/* Confirm Password */}
-          <div className="mb-3">
-            <label className="form-label">Confirm Password</label>
-            <input
-              type="password"
-              className="form-control"
-              {...register("confirmPassword", {
-                required: "Confirm your password",
-              })}
-              onBlur={handleConfirmPasswordBlur}
-            />
-            {passwordMatchError && (
-              <small className="text-danger">{passwordMatchError}</small>
-            )}
-          </div>
-
-          {/* Phone */}
-          <div className="mb-3">
-            <label className="form-label">Phone Number</label>
-            <input
-              className="form-control"
-              {...register("phone", {
-                required: "Phone number is required",
-                pattern: {
-                  value: /^[0-9]{10}$/,
-                  message: "Enter a valid 10-digit mobile number",
-                },
-              })}
-            />
-            {errors.phone && <small className="text-danger">{errors.phone.message}</small>}
-          </div>
-
-          {/* Address */}
-          <div className="mb-3">
-            <label className="form-label">Address</label>
-            <textarea
-              rows="2"
-              className="form-control"
-              {...register("address", {
-                required: "Address is required",
-                minLength: { value: 5, message: "Min 5 characters" },
-              })}
-            ></textarea>
-            {errors.address && <small className="text-danger">{errors.address.message}</small>}
-          </div>
-
-          {/* Gender */}
-          <div className="mb-3">
-            <label className="form-label">Gender</label>
-            <select
-              className="form-select"
-              {...register("gender", { required: "Gender is required" })}
-            >
-              <option value="">Select Gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
-            {errors.gender && <small className="text-danger">{errors.gender.message}</small>}
-          </div>
-
-          {/* Hobbies */}
-          <div className="mb-3">
-            <label className="form-label">Hobbies</label>
-            {["Reading", "Sports", "Travelling", "Cooking"].map((hobby) => (
-              <div className="form-check" key={hobby}>
-                <input
-                  type="checkbox"
-                  className="form-check-input"
-                  {...register(`hobbies.${hobby}`)}
-                />
-                <label className="form-check-label">{hobby}</label>
-              </div>
-            ))}
-          </div>
-
-          {/* Country */}
-          <div className="mb-3">
-            <label className="form-label">Country</label>
-            <select
-              className="form-select"
-              {...register("country", { required: "Country is required" })}
-            >
-              <option value="">Select Country</option>
-              <option value="India">India</option>
-              <option value="USA">USA</option>
-              <option value="UK">UK</option>
-              <option value="Canada">Canada</option>
-            </select>
-            {errors.country && <small className="text-danger">{errors.country.message}</small>}
-          </div>
-
-          {/* Submit */}
-          <button type="submit" className="btn btn-primary w-100" disabled={loading}>
-            {loading ? "Creating Account..." : "Register"}
-          </button>
-
-          <button
-            type="button"
-            className="btn btn-secondary w-100 mt-2"
-            onClick={() => reset()}
-          >
-            Reset
-          </button>
-        </form>
-
-        <p className="mt-3 text-center">
-          Already have an account?{" "}
-          <span className="text-primary" style={{ cursor: "pointer" }} onClick={() => navigate("/login")}>
-            Sign In
-          </span>
-        </p>
+        </div>
       </div>
     </div>
   );
 };
 
 export default Register;
+
 
 
 

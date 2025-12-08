@@ -1,57 +1,71 @@
 import React from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 import api from "../axiosConfig";
+import "./Css/RazorpayCheckout.css"; // optional CSS for animation
 
 const RazorpayCheckout = ({ amount, click }) => {
-
   const navigate = useNavigate();
-  const { token } = useSelector(state => state.auth); // 🔐 Check user login
-  const cartItems = useSelector(state => state.cart); // To check cart values
-  const customerEmail = useSelector(state => state.user?.email); // If saved user email
+  const { token } = useSelector((state) => state.auth);
+  const customerEmail = useSelector((state) => state.user?.email);
+
+  const MySwal = withReactContent(Swal);
 
   const handlePayment = async () => {
-
-    // 🔴 Validation 1: User must be logged in
     if (!token) {
       alert("You must Login first to proceed for Payment ❗");
       return navigate("/login");
     }
 
-    // 🔴 Validation 2: Email must be entered
-    // (Using email from cart page input - passed via function)
     if (!document.querySelector("input[type='email']").value.trim()) {
       alert("Please enter your Email before Checkout ❗");
       return;
     }
 
     try {
-      // 🟢 Create Order on Backend
       const { data } = await api.post("/payment/create-order", { amount });
 
       const options = {
         key: "rzp_test_RmFnjlJ3wdbAuJ",
         amount: data.amount,
         currency: data.currency,
-        name: "Food App",
-        description: "Test Transaction",
+        name: "Delicious Bites",
+        description: "Payment for your order at Delicious Bites",
         order_id: data.orderId,
         handler: async function (response) {
-
-          // 🟢 Verify payment on backend
-          const verifyRes = await axios.post("http://localhost:3000/api/payment/verify-payment", {
+          const verifyRes = await api.post("/payment/verify-payment", {
             razorpay_order_id: response.razorpay_order_id,
             razorpay_payment_id: response.razorpay_payment_id,
             razorpay_signature: response.razorpay_signature,
           });
 
           if (verifyRes.data.success) {
-            alert("Payment Successful ✅");
+            // Neon SweetAlert2
+            MySwal.fire({
+              title: "<span class='neon-title'>Order Placed Successfully!</span>",
+              html: "<p class='neon-text'>Redirecting to your orders page...</p>",
+              background: "#0a0a0a",
+              timer: 10000,
+              timerProgressBar: true,
+              showConfirmButton: false,
+              didOpen: () => Swal.showLoading(),
+            });
+
             click();
-            navigate("/order");
+
+            setTimeout(() => {
+              navigate("/order");
+            }, 10000);
           } else {
-            alert("Payment Verification Failed ❌");
+            MySwal.fire({
+              title: "<span class='neon-error'>Payment Verification Failed</span>",
+              background: "#0a0a0a",
+              icon: "error",
+              timer: 5000,
+              showConfirmButton: true,
+            });
           }
         },
         prefill: {
@@ -62,32 +76,36 @@ const RazorpayCheckout = ({ amount, click }) => {
         notes: {
           address: "Hyderabad, India",
         },
-        theme: {
-          color: "#3399cc",
-        },
       };
 
       const rzp = new window.Razorpay(options);
       rzp.open();
-
     } catch (err) {
       console.error("Payment Error:", err);
-      alert("Payment Failed. Try Again.");
+      MySwal.fire({
+        title: "<span class='neon-error'>Payment Failed</span>",
+        text: "Please try again.",
+        background: "#0a0a0a",
+        icon: "error",
+        timer: 5000,
+        showConfirmButton: true,
+      });
     }
   };
 
   return (
-    <>
-      <div>
-        <h3>Total Amount: ₹{amount}</h3>
-        <button onClick={handlePayment}>Checkout</button>
-      </div>
-
-    </>
+    <div className="checkout-container">
+      <h3 className="neon-amount">Total Amount: ₹{amount}</h3>
+      <button className="neon-btn" onClick={handlePayment}>
+        Checkout
+      </button>
+    </div>
   );
 };
 
 export default RazorpayCheckout;
+
+
 
 
 // import React, { use } from "react";

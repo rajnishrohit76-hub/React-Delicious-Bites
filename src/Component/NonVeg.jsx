@@ -69,7 +69,7 @@ function NonVeg() {
 
   return (
     <div className="container">
-      <h1 className="text-center mb-2 veg-title">Non-Vegetarian Delights</h1>
+      <h1 className="text-center mb-2 veg-title hero">Non-Vegetarian Delights</h1>
 
       {/* Search + Items per page */}
       <div className="filter-top-row">

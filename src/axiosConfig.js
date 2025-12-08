@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://delicious-bites-backend-428q.vercel.app",
+  baseURL: "https://expressjs-backend-theta.vercel.app",
 });
 
 // 🌟 Attach Token Automatically

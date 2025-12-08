@@ -6,6 +6,7 @@
   width: 95%;
   max-width: 1250px;
   margin: auto;
+  margin-top: -30px;
   padding: 25px;
   animation: fadeIn 0.4s ease;
   font-family: "Poppins", sans-serif;

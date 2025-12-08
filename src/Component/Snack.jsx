@@ -7,214 +7,186 @@ import usePagination from "./usePagination";
 import { toast } from "react-toastify";
 
 function Snack() {
-    const dispatch = useDispatch();
-    
+  const dispatch = useDispatch();
 
-   // Fetch Snack Products
-    useEffect(() => {
-        dispatch(fetchSnackProducts());
-    }, []);
+  // 📌 Fetch Snack Products
+  useEffect(() => {
+    dispatch(fetchSnackProducts());
+  }, [dispatch]);
 
-  const { snackItems = [], loading, error } = useSelector((state) => state.products);
+  // 📌 GET ITEMS FROM REDUX
+  const { snackItems = [], loading, error } = useSelector(
+    (state) => state.products
+  );
 
+  // 🍟 SEARCH, ITEMS PER PAGE, PRICE FILTER, PAGINATION
+  const [searchTerm, setSearchTerm] = useState("");
+  const [itemsPerPage, setItemsPerPage] = useState(4);
+  const [selectedRanges, setSelectedRanges] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
+  // 💰 PRICE RANGES
+  const priceRanges = [
+    { id: 1, min: 0, max: 30, label: "₹0 – ₹30" },
+    { id: 2, min: 30, max: 60, label: "₹30 – ₹60" },
+    { id: 3, min: 60, max: 100, label: "₹60 – ₹100" }
+  ];
 
-    // 🔍 SEARCH, PRICE RANGE, PAGINATION, ITEMS PER PAGE
-    const [searchTerm, setSearchTerm] = useState("");
-    const [itemsPerPage, setItemsPerPage] = useState(4);
-    const [selectedRanges, setSelectedRanges] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
+  // 🧮 FILTER ITEMS
+  const filteredItems = snackItems.filter((item) => {
+    const matchSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchPrice =
+      selectedRanges.length === 0 ||
+      selectedRanges.some((rangeId) => {
+        const r = priceRanges.find((x) => x.id === rangeId);
+        return item.price >= r.min && item.price <= r.max;
+      });
+    return matchSearch && matchPrice;
+  });
 
-    // Same price ranges used in Veg.jsx
-    const priceRanges = [
-        { id: 1, min: 0, max: 30, label: "₹0 – ₹30" },
-        { id: 2, min: 30, max: 60, label: "₹30 – ₹60" },
-        { id: 3, min: 60, max: 100, label: "₹60 – ₹100" }
-    ];
+  // 🔢 PAGINATION
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentItems = filteredItems.slice(startIndex, startIndex + itemsPerPage);
 
-    const toggleRange = (id) => {
-        setSelectedRanges(prev =>
-            prev.includes(id)
-                ? prev.filter(r => r !== id)
-                : [...prev, id]
-        );
-        setCurrentPage(1);
-    };
+  const { pageNumbers, goToPage } = usePagination({ currentPage, totalPages });
 
-    const filteredItems = snackItems.filter(item => {
-        const matchSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchPrice =
-            selectedRanges.length === 0 ||
-            selectedRanges.some(rangeId => {
-                const range = priceRanges.find(r => r.id === rangeId);
-                return item.price >= range.min && item.price <= range.max;
-            });
+  // 📝 HANDLERS
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
 
-        return matchSearch && matchPrice;
-    });
+  const handleItemsPerPageChange = (e) => {
+    setItemsPerPage(Number(e.target.value));
+    setCurrentPage(1);
+  };
 
-    const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentItems = filteredItems.slice(startIndex, startIndex + itemsPerPage);
-
-    // HANDLERS
-    const handleSearch = (e) => {
-        setSearchTerm(e.target.value);
-        setCurrentPage(1);
-    };
-
-    const handleItemsPerPageChange = (e) => {
-        setItemsPerPage(Number(e.target.value));
-        setCurrentPage(1);
-    };
-
-    // 🔥 CUSTOM HOOK
-    const {pageNumbers, goToPage } = usePagination({ currentPage, totalPages });
-
-    return (
-        <div className="container">
-
-            <h1 className="text-center mb-2 veg-title">Delicious Snacks</h1>
-
-            {/* ⭐ Filter Top Row */}
-            <div className="filter-top-row">
-
-                <input
-                    type="text"
-                    className="filter-search"
-                    placeholder="Search Snacks"
-                    value={searchTerm}
-                    onChange={handleSearch}
-                />
-
-                <select
-                    className="items-dropdown"
-                    value={itemsPerPage}
-                    onChange={handleItemsPerPageChange}
-                >
-                    <option value="4">Show 4</option>
-                    <option value="8">Show 8</option>
-                    <option value="12">Show 12</option>
-                    <option value="16">Show 16</option>
-                </select>
-
-            </div>
-
-            {/* ⭐ PRICE RANGE CHECKBOXES */}
-            <div className="price-checkbox-row">
-                {priceRanges.map(range => (
-                    <label key={range.id} className="custom-checkbox-label">
-                        <input
-                            type="checkbox"
-                            checked={selectedRanges.includes(range.id)}
-                            onChange={() => toggleRange(range.id)}
-                        />
-                        {range.label}
-                    </label>
-                ))}
-            </div>
-
-            {/* ⭐ SNACK CARDS GRID */}
-            <div className="row fade-animation">
-                {currentItems.map(item => (
-                    <div key={item.id} className="col-md-3">
-                        <div className="card item-card h-100 shadow-sm animated-card">
-
-                            <Link
-                                to={`/snack/${item.id}`}
-                                style={{ textDecoration: "none", color: "inherit" }}
-                            >
-                                <img
-                                    src={item.image}
-                                    className="card-img-top img-fluid"
-                                    alt={item.name}
-                                />
-                            </Link>
-
-                            <div className="card-body">
-                                <h5 className="card-title d-flex justify-content-between">
-                                    {item.name}
-                                    <span className="badge bg-success">₹{item.price}</span>
-                                </h5>
-
-                                <p className="text-muted small">{item.description}</p>
-
-                                <div className="d-flex justify-content-between align-items-center mt-3">
-                                    <span className="badge bg-success">
-                                        {item.ratings} ★
-                                    </span>
-
-                                    <button
-                                        className="btn btn-outline-danger btn-sm rounded-pill"
-                                        onClick={() =>{ dispatch(addToCart(item));
-                                            toast.success(`${item.name} added to cart!`,
-                                            {
-                                                position: "top-right",
-                                                autoClose: 2000,
-                                                hideProgressBar: false,
-                                                closeOnClick: true,
-                                                pauseOnHover: true,
-                                                draggable: true,
-                                                progress: undefined,
-                                            }
-                                        );
-
-                                        }}
-                                    >
-                                        <i className="fas fa-cart-plus"></i> Add to Cart
-                                    </button>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            {/* ⭐ PAGINATION */}
-            <div className="pagination-container d-flex justify-content-center mt-4">
-                <ul className="pagination modern-pagination">
-
-                    {/* Prev Button */}
-                    <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
-                        <button
-                            className="page-link"
-                            onClick={() => setCurrentPage(goToPage(currentPage - 1))}
-                        >
-                            ◀ Prev
-                        </button>
-                    </li>
-
-                    {/* Page Numbers */}
-                    {pageNumbers.map(num => (
-                        <li
-                            key={num}
-                            className={`page-item ${currentPage === num ? "active" : ""}`}
-                        >
-                            <button
-                                className="page-link"
-                                onClick={() => setCurrentPage(goToPage(num))}
-                            >
-                                {num}
-                            </button>
-                        </li>
-                    ))}
-
-                    {/* Next Button */}
-                    <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
-                        <button
-                            className="page-link"
-                            onClick={() => setCurrentPage(goToPage(currentPage + 1))}
-                        >
-                            Next ▶
-                        </button>
-                    </li>
-
-                </ul>
-            </div>
-
-        </div>
+  const toggleRange = (id) => {
+    setSelectedRanges((prev) =>
+      prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id]
     );
+    setCurrentPage(1);
+  };
+
+  return (
+    <div className="container">
+      <h1 className="text-center mb-2 veg-title hero">Delicious Snacks</h1>
+
+      {/* 🔍 Search + Items per page */}
+      <div className="filter-top-row">
+        <input
+          type="text"
+          className="filter-search"
+          placeholder="Search Snacks..."
+          value={searchTerm}
+          onChange={handleSearch}
+        />
+
+        <select
+          className="items-dropdown"
+          value={itemsPerPage}
+          onChange={handleItemsPerPageChange}
+        >
+          <option value="4">Show 4</option>
+          <option value="8">Show 8</option>
+          <option value="12">Show 12</option>
+          <option value="16">Show 16</option>
+        </select>
+      </div>
+
+      {/* 💰 PRICE FILTERS */}
+      <div className="price-checkbox-row">
+        {priceRanges.map((range) => (
+          <label key={range.id} className="custom-checkbox-label">
+            <input
+              type="checkbox"
+              checked={selectedRanges.includes(range.id)}
+              onChange={() => toggleRange(range.id)}
+            />
+            {range.label}
+          </label>
+        ))}
+      </div>
+
+      {/* LOADING & ERROR */}
+      {loading && <p className="text-center text-info">Loading Snacks...</p>}
+      {error && <p className="text-center text-danger">{error}</p>}
+
+      {/* 🍟 CARDS */}
+      <div className="row fade-animation">
+        {!loading && currentItems.length === 0 && (
+          <p className="text-center text-muted">No snacks found!</p>
+        )}
+
+        {currentItems.map((item) => (
+          <div key={item._id} className="col-md-3 mb-4">
+            <div className="card item-card h-100 shadow-sm animated-card">
+              <Link
+                to={`/snack/${item._id}`}
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <img src={item.image} className="card-img-top img-fluid" alt={item.name} />
+              </Link>
+
+              <div className="card-body">
+                <h5 className="card-title d-flex justify-content-between">
+                  {item.name}
+                  <span className="badge bg-success">₹{item.price}</span>
+                </h5>
+
+                <p className="text-muted small">{item.description}</p>
+
+                <div className="d-flex justify-content-between align-items-center mt-3">
+                  <span className="badge bg-success">{item.ratings} ★</span>
+
+                  <button
+                    className="btn btn-outline-danger btn-sm rounded-pill"
+                    onClick={() => {
+                      dispatch(addToCart(item));
+                      toast.success(`${item.name} added to cart!`, {
+                        position: "top-right",
+                        autoClose: 1500
+                      });
+                    }}
+                  >
+                    <i className="fas fa-cart-plus"></i> Add to Cart
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* 🔢 PAGINATION */}
+      {!loading && totalPages > 1 && (
+        <div className="pagination-container d-flex justify-content-center mt-4">
+          <ul className="pagination modern-pagination">
+            <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+              <button className="page-link" onClick={() => setCurrentPage(goToPage(currentPage - 1))}>
+                ◀ Prev
+              </button>
+            </li>
+
+            {pageNumbers.map((num) => (
+              <li key={num} className={`page-item ${currentPage === num ? "active" : ""}`}>
+                <button className="page-link" onClick={() => setCurrentPage(goToPage(num))}>
+                  {num}
+                </button>
+              </li>
+            ))}
+
+            <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+              <button className="page-link" onClick={() => setCurrentPage(goToPage(currentPage + 1))}>
+                Next ▶
+              </button>
+            </li>
+          </ul>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default Snack;

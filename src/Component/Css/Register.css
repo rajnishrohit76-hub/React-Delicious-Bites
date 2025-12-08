@@ -1,0 +1,177 @@
+/* 🔹 Neon Animated Rings - Scalable */
+.login-page {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at center, #0f0c29, #302b63, #24243e);
+  overflow: hidden;
+  position: relative;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Rings Container */
+.login-page .ring {
+  position: relative;
+  width: 90%;
+  max-width: 550px;
+  min-height: 550px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+  box-sizing: border-box;
+}
+
+/* Individual Rings */
+.login-page .ring i {
+  position: absolute;
+  inset: 0;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  transition: 0.5s;
+  opacity: 0.6;
+  mix-blend-mode: screen;
+}
+
+/* Animated shapes */
+.login-page .ring i:nth-child(1) {
+  border-radius: 38% 62% 63% 37% / 41% 44% 56% 59%;
+  animation: animate 6s linear infinite;
+}
+
+.login-page .ring i:nth-child(2) {
+  border-radius: 41% 44% 56% 59% / 38% 62% 63% 37%;
+  animation: animate 8s linear infinite reverse;
+}
+
+.login-page .ring i:nth-child(3) {
+  border-radius: 41% 44% 56% 59% / 38% 62% 63% 37%;
+  animation: animate2 10s linear infinite;
+}
+
+/* Hover effect */
+.login-page .ring:hover i {
+  border-width: 4px;
+  filter: drop-shadow(0 0 25px var(--clr));
+}
+
+/* Ring Animations */
+@keyframes animate {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.1); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+@keyframes animate2 {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(0.9); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+/* Login Box */
+.login-page .login {
+  position: relative;
+  width: 100%;
+  max-width: 450px;
+  background: rgba(0, 0, 0, 0.85);
+  padding: 35px 30px;
+  border-radius: 20px;
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  z-index: 10;
+  color: #fff;
+  text-align: center;
+}
+
+/* Title */
+.login h2 {
+  font-size: 2rem;
+  color: #00ffea;
+  text-shadow: 0 0 15px #00ffea, 0 0 30px #ff0057;
+  margin-bottom: 10px;
+}
+
+/* Input Fields */
+.inputBx {
+  position: relative;
+  width: 100%;
+}
+
+.inputBx input,
+.inputBx select {
+  width: 100%;
+  padding: 14px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #00ffea;
+  border-radius: 12px;
+  outline: none;
+  color: #fff;
+  font-size: 15px;
+  transition: 0.3s;
+}
+
+.inputBx input::placeholder {
+  color: #aaa;
+}
+
+.inputBx input:focus,
+.inputBx select:focus {
+  border-color: #ff0057;
+  box-shadow: 0 0 15px #ff0057;
+}
+
+/* Submit Button */
+.inputBx input[type="submit"] {
+  cursor: pointer;
+  background: linear-gradient(90deg, #00ffea, #ff0057, #fffd44);
+  color: #000;
+  font-weight: bold;
+  font-size: 16px;
+  border: none;
+  border-radius: 12px;
+  transition: 0.3s;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+}
+
+.inputBx input[type="submit"]:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.7);
+}
+
+/* Error Messages */
+.text-danger {
+  color: #ff0057;
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+/* Links */
+.links a {
+  display: block;
+  text-align: center;
+  margin-top: 10px;
+  color: #00ffea;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.links a:hover {
+  color: #fffd44;
+  text-shadow: 0 0 10px #fffd44;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .login-page .login {
+    padding: 25px 15px;
+  }
+
+  .login h2 {
+    font-size: 1.5rem;
+  }
+}

@@ -81,6 +81,31 @@ export const fetchSnackProducts = createAsyncThunk(
   }
 );
 
+export const fetchDrinkProducts = createAsyncThunk(
+  "products/fetchDrinkProducts",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.get("/product/drinks");
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || "Error fetching drink products");
+    }
+  }
+);
+
+export const fetchDessertProducts = createAsyncThunk(
+  "products/fetchDessertProducts",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.get("/product/desserts");
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || "Error fetching dessert products");
+    }
+  }
+);
+
+
 // =====================
 // Product Slice
 // =====================
@@ -90,6 +115,8 @@ const productSlice = createSlice({
     vegItems: [],
     nonVegItems: [],
     snackItems: [],
+    drinkItems: [],
+    dessertItems: [],
     loading: false,
     error: null,
   },
@@ -130,7 +157,33 @@ const productSlice = createSlice({
       })
       .addCase(fetchSnackProducts.rejected, (state, action) => {
         state.error = action.payload;
+      })
+
+      // Drink Products
+      .addCase(fetchDrinkProducts.pending, (state) => { 
+        state.loading = true; 
+      })
+      .addCase(fetchDrinkProducts.fulfilled, (state, action) => {
+        state.loading = false;
+        state.drinkItems = action.payload;
+      })
+      .addCase(fetchDrinkProducts.rejected, (state, action) => {
+        state.error = action.payload;
+      })
+
+      // Dessert Products
+      .addCase(fetchDessertProducts.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchDessertProducts.fulfilled, (state, action) => {
+        state.loading = false;
+        state.dessertItems = action.payload;
+      })
+      .addCase(fetchDessertProducts.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
+
   },
 });
 
@@ -158,7 +211,9 @@ export const registerUser = createAsyncThunk(
 );
 
 
+// =====================
 // Login User Thunk
+// =====================
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async (userCredentials, { rejectWithValue }) => {
@@ -171,40 +226,37 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+
 // =====================
 // Auth Slice
 // =====================
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    // user: JSON.parse(localStorage.getItem("user")) || null,
-    user: null,
+    user: JSON.parse(localStorage.getItem("user")) || null,
     token: localStorage.getItem("token") || null,
     isAuthenticated: !!localStorage.getItem("token"),
     loading: false,
     error: null,
   },
 
-  // Reducers 
   reducers: {
     logout: (state) => {
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
       localStorage.removeItem("token");
-      // localStorage.removeItem("user");
+      localStorage.removeItem("user");
 
       if (logoutTimer) clearTimeout(logoutTimer);
       logoutTimer = null;
-      console.log(logoutTimer);
-
       console.log("🚪 Logged Out");
     },
   },
 
   extraReducers: (builder) => {
     builder
-      // Login Case
+      // 🔐 Login
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -216,14 +268,14 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
 
         localStorage.setItem("token", action.payload.token);
-        // localStorage.setItem("user", JSON.stringify(action.payload.user));
+        localStorage.setItem("user", JSON.stringify(action.payload.user)); // 👈 FIXED
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
-      // Register Case
+      // 📝 Register
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -259,15 +311,30 @@ export const placeOrder = createAsyncThunk(
 
 const orderSlice = createSlice({
   name: "orders",
-  initialState: { loading: false, error: null, success: false },
+  initialState: { 
+    loading: false, 
+    error: null, 
+    success: false 
+  },
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(placeOrder.pending, (state) => { state.loading = true; })
-      .addCase(placeOrder.fulfilled, (state) => { state.success = true; })
-      .addCase(placeOrder.rejected, (state, action) => { state.error = action.payload; });
+      .addCase(placeOrder.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(placeOrder.fulfilled, (state) => {
+        state.loading = false;
+        state.success = true;
+      })
+      .addCase(placeOrder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "Something went wrong!";
+      });
   },
 });
+
 
 
 
@@ -325,9 +392,12 @@ const cartSlice = createSlice({
     decreaseQuantity: (state, action) =>
       state.map(i => i.id === action.payload.id && i.quantity > 1 ? { ...i, quantity: i.quantity - 1 } : i),
     removeFromCart: (state, action) => state.filter(i => i.id !== action.payload.id),
+    clearCart: (state) => {
+      state.cart = []; // Clear the cart
+    },
   }
 });
-export const { addToCart, decreaseQuantity, removeFromCart } = cartSlice.actions;
+export const { addToCart, decreaseQuantity, removeFromCart, clearCart } = cartSlice.actions;
 
 // =====================
 // Coupon Slice

@@ -1,6 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "./Css/Home.css";
+import AboutItems from "./AboutItems";
+import PopularDishes from "./PopularDishes";
+import Services from "./Services";
+import CustomerReview from "./CustomerReview";
+
 
 function Home() {
 
@@ -10,31 +15,31 @@ function Home() {
             id: 1,
             title: "Veg",
             link: "/veg",
-            image: "/Veg/Paneer Tikka.avif"
+            image: "https://t4.ftcdn.net/jpg/08/22/27/53/240_F_822275321_Furo4rcWaOhgjFYyjLeJ0REg46dmMPNd.jpg"
         },
         {
             id: 2,
             title: "Non-Veg",
             link: "/nonveg",
-            image: "/NonVeg/Chicken Lolipop.avif"
+            image: "https://t3.ftcdn.net/jpg/15/55/51/30/240_F_1555513051_Ja9YEYRSV1xwJiCrNQxUBDW3ySUF6109.jpg"
         },
         {
             id: 3,
             title: "Snack",
             link: "/snack",
-            image: "/Snacks/French Fries.avif"
+            image: "https://t3.ftcdn.net/jpg/05/89/15/26/240_F_589152619_Ffj66wWOMqlkSyuMG4nhUyAgLcEEDyth.jpg"
         },
         {
             id: 4,
             title: "Drinks",
             link: "/drink",
-            image: "/Drinks/Strawberry Shake.avif"
+            image: "https://t4.ftcdn.net/jpg/06/23/78/99/240_F_623789950_aAIp3ejFuGQcVOgU0gHaRQYcu02hjCOr.jpg"
         },
         {
             id: 5,
             title: "Desserts",
             link: "/dessert",
-            image: "/Desserts/Donut.avif"
+            image: "https://t3.ftcdn.net/jpg/14/60/37/18/240_F_1460371846_ZEDxY9wOb7nW5iYf71ItsTi8LHuUePZW.jpg"
         }
     ];
 
@@ -51,12 +56,14 @@ function Home() {
     ));
 
     return (
-        <div className="home-container pb-5">
+        <div className="home-container">
 
             {/* HERO SECTION */}
             <section className="hero-section d-flex align-items-center justify-content-center text-center">
                 <div className="hero-content">
-                    <h1 className="hero-title">Delicious Food, Delivered Fresh</h1>
+                    <h1 className="hero-title">
+                        Delicious Food, Delivered Fresh
+                    </h1>
                     <p className="hero-subtitle">
                         Taste the best dishes made with love. Order now & enjoy freshness!
                     </p>
@@ -68,11 +75,27 @@ function Home() {
             </section>
 
             {/* CATEGORY SECTION */}
-            <section className="container mt-5">
-                <h2 className="text-center fw-bold mb-4">Browse by Category</h2>
+            <section className="container mt-4">
+                <h2 className="text-center fw-bold">Browse by Category</h2>
 
-                <div className="row g-4 justify-content-center">
+                <div className="row g-4 justify-content-center mt-2">
                     {renderedCategories}
+                </div>
+
+                <div>
+                    <AboutItems />
+                </div>
+
+                <div className="popular">
+                    <PopularDishes />
+                </div>
+
+                <div>
+                    <Services />
+                </div>
+
+                <div>
+                    <CustomerReview />
                 </div>
             </section>
 

@@ -110,12 +110,13 @@
     width: 100%;
     min-height: 100vh;
     background-color: #fafafa;
+    margin-top: -50px;
 }
 
 /* ===================== HERO SECTION ===================== */
 .hero-section {
-    height: 80vh;
-    background: url('/Veg/Paneer Tikka.avif') center/cover no-repeat;
+    height: 90vh;
+    background: url('https://t4.ftcdn.net/jpg/06/85/20/81/240_F_685208138_RHffbbg1ALT5PEScJxSsH0bBxQp97V1Y.jpg') center/cover no-repeat;
     position: relative;
     color: white;
 }
@@ -131,6 +132,7 @@
     position: relative;
     z-index: 2;
     animation: fadeIn 1.3s ease-in-out;
+
 }
 
 .hero-title {
@@ -200,4 +202,10 @@
 @keyframes fadeIn {
     0% { opacity: 0; transform: translateY(20px); }
     100% { opacity: 1; transform: translateY(0); }
+}
+
+.popular{
+    margin-top: -50px;
+    margin-bottom: 20px;
+    padding: 10px;
 }

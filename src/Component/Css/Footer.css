@@ -1,0 +1,101 @@
+/* --- Application Layout Styling --- */
+
+/* Class to provide spacing below the fixed-top navbar */
+.main-content-area {
+    margin-top: 120px; /* Provides space below the fixed navbar */
+    /* Fix margin bottom 0 */
+    min-height: calc(100vh - 120px); /* Ensure content takes up available space before footer */
+    padding-bottom: 0; /* Ensures no extra padding/margin at the bottom before the footer starts */
+}
+
+/* --- Footer Styles --- */
+
+.footer-custom {
+    /* Uses dark background to contrast with the vibrant navbar */
+    background-color: #111111; 
+    color: #ffffff;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 3rem;
+    padding-bottom: 2rem;
+}
+
+.footer-heading {
+    font-weight: 700;
+    font-size: 2rem;
+    color: #ff6b6b !important; /* Matching a color from your navbar gradient */
+    margin-bottom: 1rem;
+    text-decoration: none;
+    transition: transform 0.3s ease, text-shadow 0.3s ease;
+}
+
+.bites{
+    text-decoration: none;
+    color: #ff6b6b !important; 
+}
+
+.footer-heading:hover {
+    transform: scale(1.009);
+    text-shadow: 0 0 5px rgba(255, 107, 107, 0.7);
+    cursor: pointer;
+}
+
+.footer-heading-small {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 1rem;
+}
+
+.footer-text, .footer-copyright {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+    transition: transform 0.3s ease, text-shadow 0.3s ease;
+}
+
+.footer-text:hover{
+    transform: scale(1.009);
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+}
+
+.footer-copyright:hover {
+    transform: scale(1.009);
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+}
+
+.footer-link {
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.7);
+    transition: color 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.footer-link:hover {
+    color: #ee5a24; /* Hover color from your navbar gradient */
+    text-decoration: underline;
+}
+
+.footer-social-icon {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    text-decoration: none;
+    font-size: 1.5rem;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.footer-social-icon:hover {
+    background-color: #ff6b6b;
+}
+
+/* Ensure the social text is hidden if using icons */
+
+.footer-link:hover {
+    color: #ff6b6b !important;
+    text-decoration: underline;
+}

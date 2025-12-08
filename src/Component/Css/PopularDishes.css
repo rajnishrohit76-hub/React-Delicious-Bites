@@ -1,0 +1,47 @@
+.marquee-photos {
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  border-radius: 10px;
+  border: 2px solid #f4b048;
+  box-shadow: 0px 5px 15px rgba(255, 162, 0, 0.4);
+  cursor: pointer;
+  position: relative;
+}
+
+/* Track for infinite scroll */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: scroll 20s linear infinite;
+}
+
+/* 🟢 Reverse scroll on hover */
+.marquee-photos:hover .marquee-track {
+  animation-direction: reverse;
+}
+
+/* Dish Images */
+.dish-img {
+  width: 180px;
+  height: 120px;
+  margin: 10px;
+  border-radius: 12px;
+  object-fit: cover;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+  cursor: pointer;
+}
+
+/* 🌈 Glow Effect & Zoom */
+.dish-img:hover {
+  transform: scale(1.12);
+  box-shadow: 0px 0px 18px 5px rgba(255, 145, 0, 0.8),
+              0px 0px 28px 10px rgba(255, 208, 0, 0.6);
+  border: 2px solid #ffbe25;
+}
+
+/* 🔁 Infinite scrolling animation */
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
