@@ -57,7 +57,6 @@ function Home() {
 
     return (
         <div className="home-container">
-
             {/* HERO SECTION */}
             <section className="hero-section d-flex align-items-center justify-content-center text-center">
                 <div className="hero-content">
@@ -68,27 +67,31 @@ function Home() {
                         Taste the best dishes made with love. Order now & enjoy freshness!
                     </p>
 
-                    <Link to="/veg" className="btn btn-danger btn-lg rounded-pill hero-btn">
+                    <a href="#about-items" className="btn btn-danger btn-lg rounded-pill hero-btn">
                         Explore Menu
-                    </Link>
+                    </a>
                 </div>
             </section>
 
             {/* CATEGORY SECTION */}
             <section className="container mt-4">
                 <h2 className="text-center fw-bold">Browse by Category</h2>
-
                 <div className="row g-4 justify-content-center mt-2">
                     {renderedCategories}
                 </div>
+            </section>
 
+            <section id="about-items">
                 <div>
                     <AboutItems />
                 </div>
+            </section>
 
+            <section id="popular">
                 <div className="popular">
                     <PopularDishes />
                 </div>
+            </section>
 
                 <div>
                     <Services />
@@ -97,7 +100,7 @@ function Home() {
                 <div>
                     <CustomerReview />
                 </div>
-            </section>
+            
 
         </div>
     );

@@ -1,0 +1,36 @@
+/* Carousel Background */
+.carousel-background {
+    background: #000; /* fallback color */
+}
+
+/* Full-width responsive carousel */
+.carousel-picture {
+    width: 100%;
+    height: 80vh; /* 80% of viewport height */
+    margin: 0 auto;
+    border: 4px solid gold;
+    border-radius: 15px;
+    box-shadow: 0 0 20px gold;
+    overflow: hidden;
+}
+
+/* Videos inside carousel */
+.carousel-picture video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Images inside carousel */
+.carousel-picture img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Carousel Buttons */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    width: 50px;
+    height: 50px;
+}

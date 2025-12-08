@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter, Routes, Route, Link, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import "./App.css";
+import './index.css';
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -26,6 +27,7 @@ import Login from "./Component/Login";
 import Register from "./Component/Register";
 import { logout } from "./store"; // ⬅ Make sure path is correct
 import Order from "./Component/Order";
+import AboutItems from "./Component/AboutItems";
 
 function App() {
   const dispatch = useDispatch();
@@ -130,6 +132,7 @@ function App() {
 
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+
         </Routes>
       </div>
 
