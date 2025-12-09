@@ -4,22 +4,21 @@ import { useSelector } from "react-redux";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import api from "../axiosConfig";
-import "./Css/RazorpayCheckout.css"; // optional CSS for animation
+import confetti from "canvas-confetti";
+import "./Css/RazorpayCheckout.css";
 
-const RazorpayCheckout = ({ amount, click }) => {
+const RazorpayCheckout = ({ amount, click, customerEmail }) => {
   const navigate = useNavigate();
   const { token } = useSelector((state) => state.auth);
-  const customerEmail = useSelector((state) => state.user?.email);
-
   const MySwal = withReactContent(Swal);
 
   const handlePayment = async () => {
     if (!token) {
-      alert("You must Login first to proceed for Payment ❗");
+      alert("You must login first to proceed with payment ❗");
       return navigate("/login");
     }
 
-    if (!document.querySelector("input[type='email']").value.trim()) {
+    if (!customerEmail || !customerEmail.trim()) {
       alert("Please enter your Email before Checkout ❗");
       return;
     }
@@ -35,33 +34,71 @@ const RazorpayCheckout = ({ amount, click }) => {
         description: "Payment for your order at Delicious Bites",
         order_id: data.orderId,
         handler: async function (response) {
-          const verifyRes = await api.post("/payment/verify-payment", {
-            razorpay_order_id: response.razorpay_order_id,
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_signature: response.razorpay_signature,
-          });
-
-          if (verifyRes.data.success) {
-            // Neon SweetAlert2
-            MySwal.fire({
-              title: "<span class='neon-title'>Order Placed Successfully!</span>",
-              html: "<p class='neon-text'>Redirecting to your orders page...</p>",
-              background: "#0a0a0a",
-              timer: 10000,
-              timerProgressBar: true,
-              showConfirmButton: false,
-              didOpen: () => Swal.showLoading(),
+          try {
+            // Verify payment with backend
+            const verifyRes = await api.post("/payment/verify-payment", {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
             });
 
-            click();
+            if (verifyRes.data.success) {
+              // ✅ Await order placement and email sending before showing SweetAlert
+              await click(); 
 
-            setTimeout(() => {
-              navigate("/order");
-            }, 10000);
-          } else {
+              // 🎉 Confetti effect
+              const duration = 2 * 1000;
+              const end = Date.now() + duration;
+              (function frame() {
+                confetti({
+                  particleCount: 5,
+                  angle: 60,
+                  spread: 55,
+                  origin: { x: 0 },
+                  colors: ["#2980b9", "#27ae60", "#1abc9c", "#16a085"],
+                });
+                confetti({
+                  particleCount: 5,
+                  angle: 120,
+                  spread: 55,
+                  origin: { x: 1 },
+                  colors: ["#2980b9", "#27ae60", "#1abc9c", "#16a085"],
+                });
+                if (Date.now() < end) requestAnimationFrame(frame);
+              })();
+
+              // ✅ Show success alert only after order + email is completed
+              MySwal.fire({
+                title: "<span class='neon-title'>✅ Payment Successful!</span>",
+                html: `
+                  <p class="neon-text">Your order has been placed successfully.</p>
+                  <p class="neon-subtext">Redirecting to your orders page...</p>
+                `,
+                background: "#f9f9f9",
+                showConfirmButton: true,
+                confirmButtonText: "Go to Orders",
+                customClass: {
+                  confirmButton: "swal2-confirm-btn",
+                },
+                icon: "success",
+              }).then(() => {
+                navigate("/order");
+              });
+            } else {
+              MySwal.fire({
+                title: "<span class='neon-error'>Payment Verification Failed</span>",
+                background: "#f9f9f9",
+                icon: "error",
+                timer: 5000,
+                showConfirmButton: true,
+              });
+            }
+          } catch (err) {
+            console.error("Verification Error:", err);
             MySwal.fire({
-              title: "<span class='neon-error'>Payment Verification Failed</span>",
-              background: "#0a0a0a",
+              title: "<span class='neon-error'>Payment Failed</span>",
+              text: "Please try again.",
+              background: "#f9f9f9",
               icon: "error",
               timer: 5000,
               showConfirmButton: true,
@@ -70,7 +107,7 @@ const RazorpayCheckout = ({ amount, click }) => {
         },
         prefill: {
           name: "Rajnish Rohit",
-          email: customerEmail || "user@gmail.com",
+          email: customerEmail,
           contact: "7667700482",
         },
         notes: {
@@ -85,7 +122,7 @@ const RazorpayCheckout = ({ amount, click }) => {
       MySwal.fire({
         title: "<span class='neon-error'>Payment Failed</span>",
         text: "Please try again.",
-        background: "#0a0a0a",
+        background: "#f9f9f9",
         icon: "error",
         timer: 5000,
         showConfirmButton: true,
@@ -104,6 +141,12 @@ const RazorpayCheckout = ({ amount, click }) => {
 };
 
 export default RazorpayCheckout;
+
+
+
+
+
+
 
 
 

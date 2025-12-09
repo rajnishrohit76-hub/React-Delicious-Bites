@@ -11,6 +11,7 @@
   justify-content: center;
   align-items: center;
   overflow: hidden;
+  padding: 20px; /* mobile spacing */
 }
 
 /* 🟨 Animated Neon Rings */
@@ -55,6 +56,7 @@
 .login-page .login {
   position: absolute;
   width: 300px;
+  max-width: 90%; /* responsive width */
   height: 100%;
   display: flex;
   justify-content: center;
@@ -66,6 +68,7 @@
 .login-page .login h2 {
   font-size: 2em;
   color: #fff;
+  text-align: center;
 }
 
 /* 📝 Input Fields */
@@ -93,6 +96,11 @@
   cursor: pointer;
   color: #000;
   font-weight: bold;
+  transition: 0.3s ease;
+}
+
+.login-page .login .inputBx input[type="submit"]:hover {
+  transform: scale(1.05);
 }
 
 .login-page .login .inputBx input::placeholder {
@@ -104,13 +112,16 @@
   width: 100%;
   display: flex;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 0 10px;
+  flex-wrap: wrap;
 }
 
 .login-page .login .links a {
   color: #fff;
   text-decoration: none;
   cursor: pointer;
+  font-size: 0.9rem;
+  margin-top: 5px;
 }
 
 /* 🔄 Animations */
@@ -122,4 +133,61 @@
 @keyframes animate2 {
   0% { transform: rotate(360deg); }
   100% { transform: rotate(0deg); }
+}
+
+/* ===================== RESPONSIVE ===================== */
+
+/* Laptop / Medium screens */
+@media (max-width: 1200px) {
+  .login-page .ring {
+    width: 400px;
+    height: 400px;
+  }
+
+  .login-page .login h2 {
+    font-size: 1.8em;
+  }
+
+  .login-page .login .inputBx input {
+    font-size: 1.1em;
+  }
+}
+
+/* Tablet screens */
+@media (max-width: 992px) {
+  .login-page .ring {
+    width: 350px;
+    height: 350px;
+  }
+
+  .login-page .login h2 {
+    font-size: 1.6em;
+  }
+
+  .login-page .login .inputBx input {
+    font-size: 1em;
+  }
+}
+
+/* Mobile screens */
+@media (max-width: 576px) {
+  .login-page .ring {
+    width: 250px;
+    height: 250px;
+  }
+
+  .login-page .login h2 {
+    font-size: 1.4em;
+  }
+
+  .login-page .login .inputBx input {
+    font-size: 0.95em;
+    padding: 10px 15px;
+  }
+
+  .login-page .login .links {
+    flex-direction: column;
+    gap: 5px;
+    padding: 0;
+  }
 }

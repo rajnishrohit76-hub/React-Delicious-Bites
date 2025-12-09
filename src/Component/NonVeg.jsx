@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { addToCart, fetchNonVegProducts } from "../store";
 import usePagination from "./usePagination";
 import "./Css/Veg.css";
 import { toast } from "react-toastify";
 
 function NonVeg() {
-
   const [searchTerm, setSearchTerm] = useState("");
   const [itemsPerPage, setItemsPerPage] = useState(4);
   const [selectedRanges, setSelectedRanges] = useState([]);
@@ -16,10 +15,11 @@ function NonVeg() {
   const priceRanges = [
     { id: 1, min: 0, max: 200, label: "₹0 – ₹200" },
     { id: 2, min: 200, max: 350, label: "₹200 – ₹350" },
-    { id: 3, min: 350, max: 500, label: "₹350 – ₹500" }
+    { id: 3, min: 350, max: 500, label: "₹350 – ₹500" },
   ];
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   // Fetch Non-Veg Products
   useEffect(() => {
@@ -29,6 +29,10 @@ function NonVeg() {
   const { nonVegItems = [], loading, error } = useSelector(
     (state) => state.products
   );
+  const { cart = [] } = useSelector((state) => state.cart);
+
+  // Check if item is in cart
+  const isInCart = (id) => cart.some((p) => p._id === id);
 
   // Filtering
   const filteredItems = nonVegItems.filter((item) => {
@@ -39,7 +43,6 @@ function NonVeg() {
         const range = priceRanges.find((r) => r.id === rangeId);
         return item.price >= range.min && item.price <= range.max;
       });
-
     return matchSearch && matchPrice;
   });
 
@@ -142,24 +145,33 @@ function NonVeg() {
                 <div className="d-flex justify-content-between align-items-center mt-3">
                   <span className="badge bg-warning text-dark">{item.ratings} ★</span>
 
-                  <button
-                    className="btn btn-outline-danger btn-sm rounded-pill"
-                    onClick={() => {
-                      dispatch(addToCart(item));
-                      toast.success(`${item.name} added to cart!`, {
-                        position: "top-right",
-                        autoClose: 1500,
-                        closeOnClick: true,
-                        pauseOnHover: true,
-                        draggable: true,
-                      });
-                    }}
-                  >
-                    <i className="fas fa-cart-plus"></i> Add to Cart
-                  </button>
+                  {/* Add to Cart / Go to Cart */}
+                  {isInCart(item._id) ? (
+                    <button
+                      className="btn btn-success btn-sm rounded-pill"
+                      onClick={() => navigate("/cart")}
+                    >
+                      🛒 Go to Cart
+                    </button>
+                  ) : (
+                    <button
+                      className="btn btn-outline-danger btn-sm rounded-pill"
+                      onClick={() => {
+                        dispatch(addToCart(item));
+                        toast.success(`${item.name} added to cart!`, {
+                          position: "top-right",
+                          autoClose: 1500,
+                          closeOnClick: true,
+                          pauseOnHover: true,
+                          draggable: true,
+                        });
+                      }}
+                    >
+                      <i className="fas fa-cart-plus"></i> Add to Cart
+                    </button>
+                  )}
                 </div>
               </div>
-
             </div>
           </div>
         ))}

@@ -1,274 +1,322 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { addToCart, clearCart, decreaseQuantity, placeOrder, removeFromCart } from '../store';
-import "./Css/Cart.css";
+import React, { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addToCart,
+  clearCart,
+  decreaseQuantity,
+  placeOrder,
+  removeFromCart,
+} from "../store";
 import ApplyCoupon from "./ApplyCoupon";
-import useSendOrderMail from './useSendOrderMail';
-import { QRCodeCanvas } from 'qrcode.react';
-import RazorpayCheckout from './RazorpayCheckout';
-import { toast } from 'react-toastify';
+import useSendOrderMail from "./useSendOrderMail";
+import { QRCodeCanvas } from "qrcode.react";
+import RazorpayCheckout from "./RazorpayCheckout";
+import { toast } from "react-toastify";
+import './Css/Cart.css';
+
+// MUI
+import {
+  Card,
+  Button,
+  Tooltip,
+  Divider,
+  IconButton,
+  TextField,
+} from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
 
 function Cart() {
-  console.log("🟢 Cart component Rendered");
-
-  const { sendOrderMail } = useSendOrderMail();
-
-  const cartItems = useSelector(state => state.cart);
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+  const cartItems = useSelector((state) => state.cart.cart);
+  const { discount, applied, message } = useSelector((state) => state.coupon);
 
   const [couponInput, setCouponInput] = useState("");
-  const { discount, applied, code, message } = useSelector(state => state.coupon);
-  const dispatch = useDispatch();
-
   const [percentage, setPercentage] = useState(0);
   const [customerEmail, setCustomerEmail] = useState("");
+  const [showQR, setShowQR] = useState(false);
 
-  const { user } = useSelector(state => state.auth);
+  const GST = 18; // %
 
-    useEffect(() => {
-      if (user?.email) {
-        setCustomerEmail(user.email); // Auto-fill
-      }
-    }, [user]);
+  const { sendOrderMail } = useSendOrderMail(); // ✅ use hook correctly
 
-  const GST = 18;
+  useEffect(() => {
+    if (user?.email) setCustomerEmail(user.email);
+  }, [user]);
 
+  // TOTALS CALCULATION
   const totalsWithMemo = useMemo(() => {
-    const totalAmount = cartItems.reduce((t, item) => t + item.price * item.quantity, 0);
+    const totalAmount = cartItems.reduce(
+      (t, item) => t + item.price * item.quantity,
+      0
+    );
     const discountAmount = (totalAmount * percentage) / 100;
     const priceAfterDiscount = totalAmount - discountAmount;
-    const gstAmount = (priceAfterDiscount * GST) / 100;
+    const couponAmount = applied ? (priceAfterDiscount * discount) / 100 : 0;
+    const netBeforeGST = priceAfterDiscount - couponAmount;
+    const gstAmount = (netBeforeGST * GST) / 100;
+    const netAmountToPay = netBeforeGST + gstAmount;
 
-    console.log("📊 Cart Calculations WITH useMemo:", {
+    return {
       totalAmount,
       discountAmount,
       priceAfterDiscount,
+      couponAmount,
+      netBeforeGST,
       gstAmount,
-    });
+      netAmountToPay,
+    };
+  }, [cartItems, percentage, applied, discount]);
 
-    return { totalAmount, discountAmount, priceAfterDiscount, gstAmount };
-  }, [cartItems, percentage]);
-
-  const { totalAmount, discountAmount, priceAfterDiscount, gstAmount } = totalsWithMemo;
-
-  const couponDiscount = applied ? discount : 0;
-  const couponAmount = (totalAmount * couponDiscount) / 100;
-  const netAmountToPay = priceAfterDiscount - couponAmount;
-
-  const handleCheckout = async () => {
-    if (!customerEmail.trim()) {
-      return toast.error("Please enter your email before Checkout!", {
-        position: "top-right",
-        autoClose: 2000,
-      });
-    }
-
-  const orderData = {
-    items: cartItems,
+  const {
     totalAmount,
     discountAmount,
+    priceAfterDiscount,
     couponAmount,
+    gstAmount,
     netAmountToPay,
-    orderDate: new Date(),
-    email: customerEmail,
-  };
+  } = totalsWithMemo;
 
-  try {
-    // 1️⃣ Save Order in DB
-    const resultAction = await dispatch(placeOrder(orderData));
-
-    if (placeOrder.fulfilled.match(resultAction)) {
-      // 2️⃣ Send Email
-      await sendOrderMail({
-        customerEmail,
-        cartItems,
-        percentage,
-        totalAmount,
-        discountAmount,
-        priceAfterDiscount,
-        GST,
-        gstAmount,
-        couponDiscount,
-        couponAmount,
-        netAmountToPay,
-      });
-
-      toast.success("Order Placed & Email Sent Successfully!", {
-        position: "top-right",
-        autoClose: 2000,
-      });
-
-      // 3️⃣ Clear Cart
-      dispatch(clearCart());
-    } else {
-      throw new Error(resultAction.error.message || "Order failed!");
-    }
-  } catch (err) {
-    toast.error(`Error: ${err.message}`, {
-      position: "top-right",
-      autoClose: 2000,
-    });
-  }
-};
-
-
+  // UPI LINK
   const upiId = "7667700482@axl";
   const payerName = "Rajnish Rohit";
   const upiLink = `upi://pay?pa=${upiId}&pn=${payerName}&tn=Dessert%20Payment&am=${netAmountToPay.toFixed(
     2
   )}&cu=INR`;
 
-  const [showQR, setShowQR] = useState(false);
+  // HANDLE ORDER AFTER PAYMENT
+  const handleCheckout = async () => {
+    if (!customerEmail.trim())
+      return toast.error("Please enter your email before Checkout!");
 
-  const listCartItems = cartItems.map(item => (
-    <div key={item.id} className="cart-item">
-      <div className="cart-item-img">
-        <img src={item.image} alt={item.name} />
-      </div>
-      <div className="cart-item-left">
-        <h3>{item.name}</h3>
-        <p className="price">₹{item.price.toFixed(2)}</p>
-      </div>
-      <div className="cart-item-center">
-        <button
-          className="qty-btn"
-          onClick={() => {
-            dispatch(decreaseQuantity(item));
-            toast.error(`${item.name} removed from cart!`, {
-              position: "top-right",
-              autoClose: 2000,
-            });
-          }}
-        >
-          −
-        </button>
-        <span className="qty">{item.quantity}</span>
-        <button
-          className="qty-btn"
-          onClick={() => {
-            dispatch(addToCart(item));
-            toast.success(`${item.name} quantity increased in cart!`, {
-              position: "top-right",
-              autoClose: 2000,
-            });
-          }}
-        >
-          +
-        </button>
-      </div>
-      <div className="cart-item-right">
-        <button
-          className="remove-btn ms-3"
-          onClick={() => {
-            dispatch(removeFromCart(item));
-            toast.error(`${item.name} removed from cart!`, {
-              position: "top-right",
-              autoClose: 2000,
-            });
-          }}
-        >
-          Remove
-        </button>
-      </div>
-    </div>
-  ));
+    const orderData = {
+      items: cartItems,
+      totalAmount,
+      discountAmount,
+      couponAmount,
+      netAmountToPay,
+      orderDate: new Date(),
+      email: customerEmail,
+    };
+
+    try {
+      const resultAction = await dispatch(placeOrder(orderData));
+      if (placeOrder.fulfilled.match(resultAction)) {
+        await sendOrderMail({
+          customerEmail,
+          cartItems,
+          percentage,
+          totalAmount,
+          discountAmount,
+          priceAfterDiscount,
+          GST,
+          gstAmount,
+          couponDiscount: applied ? discount : 0, // ✅ pass couponDiscount
+          couponAmount,
+          netAmountToPay,
+        });
+
+        toast.success("Order Placed & Email Sent Successfully!");
+        dispatch(clearCart());
+      }
+    } catch (err) {
+      toast.error(`Error: ${err.message}`);
+    }
+  };
 
   return (
-    <div className="cart-container">
+    <div className="container py-5">
       {cartItems.length === 0 ? (
-        <div className="empty-cart">
-          <img src="/Desserts/cart.jpg" alt="empty cart" />
-          <h2>Your Cart is Empty</h2>
-          <p>Add some items to enjoy delicious food!</p>
+        <div className="text-center p-5">
+          <img src="/Desserts/cart.jpg" alt="empty cart" width={220} />
+          <h2 className="mt-3 text-muted">Your Cart is Empty</h2>
+          <p className="text-secondary">Add some items to enjoy delicious food!</p>
         </div>
       ) : (
         <>
-          <h1 className="cart-title">🛒 Your Cart</h1>
-          <div className="cart-grid">
-            <div className="cart-left">
-              <div className="cart-list">{listCartItems}</div>
+          <h1 className="fw-bold text-center mb-4 cart">🛒 Your Cart</h1>
+
+          <div className="row">
+            {/* CART ITEMS */}
+            <div className="col-md-8">
+              {cartItems.map((item) => (
+                <Card
+                  key={item.id}
+                  className="d-flex align-items-center p-3 mb-3 shadow-sm"
+                  sx={{ borderRadius: 3 }}
+                >
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    style={{ width: 90, height: 90, borderRadius: 10 }}
+                  />
+                  <div className="ms-3 flex-grow-1">
+                    <h5 className="fw-semibold">{item.name}</h5>
+                    <p className="text-success fw-bold">₹{item.price.toFixed(2)}</p>
+                  </div>
+
+                  <div className="d-flex align-items-center">
+                    <IconButton
+                      color="error"
+                      onClick={() => {
+                        dispatch(decreaseQuantity(item));
+                        toast.error(`${item.name} Quantity Decreased!`, {
+                          position: "top-right",
+                          autoClose: 1500,
+                          closeOnClick: true,
+                          pauseOnHover: true,
+                          draggable: true,
+                        });
+                      }}
+                    >
+                      <RemoveIcon />
+                    </IconButton>
+                    <span className="fw-bold px-2">{item.quantity}</span>
+                    <IconButton
+                      color="success"
+                      onClick={() => {
+                        dispatch(addToCart(item));
+                        toast.success(`${item.name} Quantity Increased!`, {
+                          position: "top-right",
+                          autoClose: 1500,
+                          closeOnClick: true,
+                          pauseOnHover: true,
+                          draggable: true,
+                        });
+                      }}
+                    >
+                      <AddIcon />
+                    </IconButton>
+                  </div>
+
+                  <Tooltip title="Remove from Cart" arrow>
+                    <IconButton
+                      color="error"
+                      onClick={() => {
+                        dispatch(removeFromCart(item));
+                        toast.error(`${item.name} Removed From Cart!`, {
+                          position: "top-right",
+                          autoClose: 1500,
+                          closeOnClick: true,
+                          pauseOnHover: true,
+                          draggable: true,
+                        });
+                      }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Card>
+              ))}
             </div>
-            <div className="cart-right text-center">
-              <div className="discount-section">
-                <h3>Apply Discount</h3>
-                <div className="discount-buttons">
-                  {[10, 20, 30].map(p => (
-                    <button
+
+            {/* BILL SUMMARY */}
+            <div className="col-md-4">
+              <Card className="p-3 shadow-lg" sx={{ borderRadius: 3 }}>
+                <h4 className="fw-bold mb-3 text-center">📄 Bill Summary</h4>
+                <Divider />
+
+                {/* DISCOUNT SELECTION */}
+                <div className="mt-3 text-center">
+                  <h6>Apply Discount</h6>
+                  {[10, 20, 30].map((p) => (
+                    <Button
                       key={p}
-                      className={percentage === p ? "active" : ""}
+                      variant={percentage === p ? "contained" : "outlined"}
+                      color="secondary"
+                      size="small"
+                      className="mx-1 my-1"
                       onClick={() => setPercentage(p)}
                     >
                       {p}% Off
-                    </button>
+                    </Button>
                   ))}
                 </div>
-                <div className="coupon-box my-2">
-                  <h3>Apply Coupon</h3>
+
+                {/* COUPON */}
+                <div className="my-2 text-center">
+                  <h6>Apply Coupon</h6>
                   <ApplyCoupon input={couponInput} setInput={setCouponInput} />
+                  {message && <p className="text-warning mt-1">{message}</p>}
                 </div>
-                {message && <p className="coupon-msg">{message}</p>}
-              </div>
-              <div className="bill-box">
-                <h2>Bill Summary</h2>
-                <div className="bill-row">
-                  <span>Total Amount</span>
-                  <span>₹{totalAmount.toFixed(2)}</span>
-                </div>
-                {percentage > 0 && (
-                  <>
-                    <div className="bill-row fade-in">
-                      <span>Discount ({percentage}%)</span>
-                      <span>− ₹{discountAmount.toFixed(2)}</span>
-                    </div>
-                    <div className="bill-row fade-in">
-                      <span>Price After Discount</span>
-                      <span>₹{priceAfterDiscount.toFixed(2)}</span>
-                    </div>
-                  </>
-                )}
-                {applied && (
-                  <div className="bill-row fade-in">
-                    <span>Coupon Discount Amount</span>
-                    <span>− ₹{couponAmount.toFixed(2)}</span>
+
+                {/* BILL DETAILS */}
+                <div className="mt-3">
+                  <div className="d-flex justify-content-between">
+                    <span>Total Amount</span>
+                    <strong>₹{totalAmount.toFixed(2)}</strong>
                   </div>
-                )}
-                <div className="bill-row">
-                  <span>GST ({GST}%)</span>
-                  <span>₹{gstAmount.toFixed(2)}</span>
-                </div>
-                <hr />
-                <div className="net-amount">
-                  <span>Net Amount To Pay</span>
-                  <span>₹{netAmountToPay.toFixed(2)}</span>
-                </div>
-                <div className="email-box">
-                  <h3>Enter Email to Get Order Receipt</h3>
-                  <input
-                    className="rounded-2"
-                    type="email"
-                    placeholder="Enter your email"
+                  {percentage > 0 && (
+                    <>
+                      <div className="d-flex justify-content-between text-danger">
+                        <span>Discount ({percentage}%)</span>
+                        <strong>- ₹{discountAmount.toFixed(2)}</strong>
+                      </div>
+                      <div className="d-flex justify-content-between">
+                        <span>Price After Discount</span>
+                        <strong>₹{priceAfterDiscount.toFixed(2)}</strong>
+                      </div>
+                    </>
+                  )}
+                  {applied && (
+                    <div className="d-flex justify-content-between text-warning">
+                      <span>Coupon Discount</span>
+                      <strong>- ₹{couponAmount.toFixed(2)}</strong>
+                    </div>
+                  )}
+                  <div className="d-flex justify-content-between">
+                    <span>GST ({GST}%)</span>
+                    <strong>₹{gstAmount.toFixed(2)}</strong>
+                  </div>
+
+                  <Divider className="my-2" />
+
+                  <div className="d-flex justify-content-between fs-5 fw-bold text-primary">
+                    <span>Net Amount</span>
+                    <span>₹{netAmountToPay.toFixed(2)}</span>
+                  </div>
+
+                  {/* EMAIL */}
+                  <TextField
+                    fullWidth
+                    variant="outlined"
+                    label="Enter Email for receipt"
+                    size="small"
+                    className="mt-3"
                     value={customerEmail}
-                    onChange={e => setCustomerEmail(e.target.value)}
+                    onChange={(e) => setCustomerEmail(e.target.value)}
                   />
-                </div>
-                <div className="flex flex-col items-center mt-10">
-                  <RazorpayCheckout amount={netAmountToPay} click={handleCheckout} />
-                </div>
-                <div className="upi-section mt-3">
-                  <button
-                    className="btn btn-outline-info w-75"
+
+                  {/* RAZORPAY CHECKOUT */}
+                  <div className="mt-3">
+                    <RazorpayCheckout 
+                      amount={netAmountToPay} 
+                      click={handleCheckout} 
+                      customerEmail={customerEmail} 
+                    />
+                  </div>
+
+                  {/* UPI */}
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    color="info"
+                    className="mt-3"
                     onClick={() => setShowQR(!showQR)}
                   >
-                    {showQR ? "Hide UPI QR Code" : "Show UPI QR Code"}
-                  </button>
+                    {showQR ? "Hide UPI QR" : "Show UPI QR"}
+                  </Button>
+
                   {showQR && (
-                    <div className="qr-code mt-3">
-                      <h3>Pay via UPI</h3>
-                      <h4>Amount to Pay : {netAmountToPay.toFixed(2)}</h4>
-                      <QRCodeCanvas value={upiLink} size={200} />
+                    <div className="mt-3 text-center">
+                      <h6>Scan & Pay (UPI)</h6>
+                      <QRCodeCanvas value={upiLink} size={140} />
                     </div>
                   )}
                 </div>
-              </div>
+              </Card>
             </div>
           </div>
         </>
@@ -278,6 +326,9 @@ function Cart() {
 }
 
 export default Cart;
+
+
+
 
 
 

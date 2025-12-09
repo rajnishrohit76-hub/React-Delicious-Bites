@@ -2,20 +2,26 @@ import { useCallback } from "react";
 import emailjs from "emailjs-com";
 
 export default function useSendOrderMail() {
-
-  const sendOrderMail = useCallback((params) => {
-    if (!params) return;
-
+  const sendOrderMail = useCallback((params = {}) => {
     const {
-      cartItems, totalAmount, percentage,
-      discountAmount, priceAfterDiscount,
-      GST, gstAmount,
-      couponDiscount, couponAmount,
-      netAmountToPay, customerEmail
+      cartItems = [],
+      totalAmount = 0,
+      percentage = 0,
+      discountAmount = 0,
+      priceAfterDiscount = 0,
+      GST = 0,
+      gstAmount = 0,
+      couponDiscount = 0,
+      couponAmount = 0,
+      netAmountToPay = 0,
+      customerEmail = "",
     } = params;
 
+    // Ensure all numbers are valid before calling .toFixed()
+    const safeNumber = (value) => Number(value || 0).toFixed(2);
+
     const templateParams = {
-      orders: cartItems.map(i => ({
+      orders: cartItems.map((i) => ({
         name: i.name,
         units: i.quantity,
         price: i.price,
@@ -23,15 +29,15 @@ export default function useSendOrderMail() {
       })),
       email: customerEmail,
       order_id: Date.now(),
-      totalAmount: totalAmount.toFixed(2),
-      percentage: percentage.toFixed(2),
-      discount: discountAmount.toFixed(2),
-      afterDiscount: priceAfterDiscount.toFixed(2),
-      gst: GST.toFixed(2),
-      gstAmount: gstAmount.toFixed(2),
-      couponDiscount: couponDiscount.toFixed(2),
-      couponAmount: couponAmount.toFixed(2),
-      amountToPay: netAmountToPay.toFixed(2),
+      totalAmount: safeNumber(totalAmount),
+      percentage: safeNumber(percentage),
+      discount: safeNumber(discountAmount),
+      afterDiscount: safeNumber(priceAfterDiscount),
+      gst: safeNumber(GST),
+      gstAmount: safeNumber(gstAmount),
+      couponDiscount: safeNumber(couponDiscount),
+      couponAmount: safeNumber(couponAmount),
+      amountToPay: safeNumber(netAmountToPay),
     };
 
     return emailjs.send(

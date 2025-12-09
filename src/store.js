@@ -381,23 +381,61 @@ const getOrdersSlice = createSlice({
 // =====================
 // Cart Slice
 // =====================
+const initialState = {
+  cart: JSON.parse(localStorage.getItem("cart")) || []
+};
+
 const cartSlice = createSlice({
   name: "cart",
-  initialState: [],
+  initialState,
   reducers: {
     addToCart: (state, action) => {
-      const item = state.find(i => i.id === action.payload.id);
-      item ? item.quantity++ : state.push({ ...action.payload, quantity: 1 });
+      const exists = state.cart.find((p) => p._id === action.payload._id);
+      if (exists) {
+        // ✅ Increase quantity if item exists
+        state.cart = state.cart.map((i) =>
+          i._id === action.payload._id
+            ? { ...i, quantity: i.quantity + 1 }
+            : i
+        );
+      } else {
+        state.cart.push({ ...action.payload, quantity: 1 });
+      }
+      localStorage.setItem("cart", JSON.stringify(state.cart));
     },
-    decreaseQuantity: (state, action) =>
-      state.map(i => i.id === action.payload.id && i.quantity > 1 ? { ...i, quantity: i.quantity - 1 } : i),
-    removeFromCart: (state, action) => state.filter(i => i.id !== action.payload.id),
+
+    decreaseQuantity: (state, action) => {
+      const item = state.cart.find((i) => i._id === action.payload._id);
+      if (item) {
+        if (item.quantity > 1) {
+          // decrease quantity
+          state.cart = state.cart.map((i) =>
+            i._id === action.payload._id
+              ? { ...i, quantity: i.quantity - 1 }
+              : i
+          );
+        } else {
+          // remove item if quantity is 1
+          state.cart = state.cart.filter((i) => i._id !== action.payload._id);
+        }
+      }
+      localStorage.setItem("cart", JSON.stringify(state.cart));
+    },
+
+    removeFromCart: (state, action) => {
+      state.cart = state.cart.filter((i) => i._id !== action.payload._id);
+      localStorage.setItem("cart", JSON.stringify(state.cart));
+    },
+
     clearCart: (state) => {
-      state.cart = []; // Clear the cart
-    },
+      state.cart = [];
+      localStorage.setItem("cart", JSON.stringify(state.cart));
+    }
   }
 });
+
 export const { addToCart, decreaseQuantity, removeFromCart, clearCart } = cartSlice.actions;
+
 
 // =====================
 // Coupon Slice

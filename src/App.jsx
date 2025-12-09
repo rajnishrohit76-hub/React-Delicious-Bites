@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Link, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import "./App.css";
@@ -19,15 +19,14 @@ import NonVegDetails from "./Component/NonVegDetails";
 import SnackDetails from "./Component/SnackDetails";
 import DrinkDetails from "./Component/DrinksDetails";
 import DessertDetails from "./Component/DessertDetails";
-import Footer from "./Component/Footer"; // ⬅ ADDED Footer Import
+import Footer from "./Component/Footer";
 
 // Auth
 import ProtectedRoute from "./Component/ProtectedRoute";
 import Login from "./Component/Login";
 import Register from "./Component/Register";
-import { logout } from "./store"; // ⬅ Make sure path is correct
+import { logout } from "./store";
 import Order from "./Component/Order";
-import AboutItems from "./Component/AboutItems";
 
 function App() {
   const dispatch = useDispatch();
@@ -35,36 +34,40 @@ function App() {
   const location = useLocation();
 
   const token = useSelector((state) => state.auth.token);
-  const cartItems = useSelector((state) => state.cart);
 
-  const cartItemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+  // Cart count
+  const cartItems = useSelector((state) => state.cart.cart) || [];
+  const cartItemCount = Array.isArray(cartItems)
+    ? cartItems.reduce((total, item) => total + item.quantity, 0)
+    : 0;
 
   const isActive = (route) => (location.pathname === route ? "nav-link active" : "nav-link");
 
+  // 🔹 Close mobile menu on link click
+  const closeMobileMenu = () => {
+    const navCollapse = document.getElementById("navbarNav");
+    if (navCollapse.classList.contains("show")) {
+      // Using Bootstrap collapse method
+      navCollapse.classList.remove("show");
+    }
+  };
+
   return (
     <>
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
+      <ToastContainer position="top-right" autoClose={3000} />
 
-      {/* 🟢 Navbar Always Visible */}
+      {/* 🟢 Navbar */}
       <nav className="navbar navbar-expand-lg navbar-custom fixed-top">
         <div className="container">
+
+          {/* 🌟 LOGO + BRAND */}
           <div className="navbar-brand d-flex align-items-center">
-            <Link to="/home">
+            <Link to="/home" onClick={closeMobileMenu}>
               <img src="/logo.avif" alt="logo"
                 style={{ width: 45, height: 45, marginRight: 10, borderRadius: 8 }} />
             </Link>
             <div>
-              <Link to="/home" className="text-decoration-none text-white"><a className="bites" href="/home"></a>Delicious Bites</Link>
+              <Link to="/home" className="text-decoration-none text-white bites" onClick={closeMobileMenu}>Delicious Bites</Link>
               <div className="brand-tagline">Fresh • Fast • Flavorful</div>
             </div>
           </div>
@@ -73,23 +76,25 @@ function App() {
             <span className="navbar-toggler-icon"></span>
           </button>
 
+          {/* 🌐 Navigation Links */}
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav ms-auto">
+              <li className="nav-item"><Link to="/home" className={isActive("/home")} onClick={closeMobileMenu}>Home</Link></li>
+              <li className="nav-item"><Link to="/veg" className={isActive("/veg")} onClick={closeMobileMenu}>Veg</Link></li>
+              <li className="nav-item"><Link to="/nonveg" className={isActive("/nonveg")} onClick={closeMobileMenu}>Non-Veg</Link></li>
+              <li className="nav-item"><Link to="/snack" className={isActive("/snack")} onClick={closeMobileMenu}>Snack</Link></li>
+              <li className="nav-item"><Link to="/drink" className={isActive("/drink")} onClick={closeMobileMenu}>Drinks</Link></li>
+              <li className="nav-item"><Link to="/dessert" className={isActive("/dessert")} onClick={closeMobileMenu}>Dessert</Link></li>
 
-              <li className="nav-item"><Link to="/home" className={isActive("/home")}>Home</Link></li>
-              <li className="nav-item"><Link to="/veg" className={isActive("/veg")}>Veg</Link></li>
-              <li className="nav-item"><Link to="/nonveg" className={isActive("/nonveg")}>Non-Veg</Link></li>
-              <li className="nav-item"><Link to="/snack" className={isActive("/snack")}>Snack</Link></li>
-              <li className="nav-item"><Link to="/drink" className={isActive("/drink")}>Drinks</Link></li>
-              <li className="nav-item"><Link to="/dessert" className={isActive("/dessert")}>Dessert</Link></li>
-
+              {/* 🛒 CART */}
               <li className="nav-item position-relative">
-                <Link to="/cart" className={isActive("/cart")}>Cart</Link>
+                <Link to="/cart" className={isActive("/cart")} onClick={closeMobileMenu}>Cart</Link>
                 {cartItemCount > 0 && <span className="cart-badge">{cartItemCount}</span>}
               </li>
 
-              <li className="nav-item"><Link to="/order" className={isActive("/order")}>Order</Link></li>
+              <li className="nav-item"><Link to="/order" className={isActive("/order")} onClick={closeMobileMenu}>Order</Link></li>
 
+              {/* 🔐 LOGIN / LOGOUT */}
               {token ? (
                 <li className="nav-item">
                   <button
@@ -97,13 +102,14 @@ function App() {
                     onClick={() => {
                       dispatch(logout());
                       navigate("/login");
+                      closeMobileMenu();
                     }}>
                     Logout
                   </button>
                 </li>
               ) : (
                 <li className="nav-item">
-                  <Link to="/login" className={isActive("/login")}>Sign In</Link>
+                  <Link to="/login" className={isActive("/login")} onClick={closeMobileMenu}>Sign In</Link>
                 </li>
               )}
             </ul>
@@ -116,41 +122,45 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/home" />} />
           <Route path="/home" element={<Home />} />
-          <Route path="/veg" element={<Veg />} />
 
+          <Route path="/veg" element={<Veg />} />
           <Route path="/veg/:id" element={<ProtectedRoute><VegDetails /></ProtectedRoute>} />
+
           <Route path="/nonveg" element={<NonVeg />} />
           <Route path="/nonveg/:id" element={<ProtectedRoute><NonVegDetails /></ProtectedRoute>} />
+
           <Route path="/snack" element={<Snack />} />
           <Route path="/snack/:id" element={<ProtectedRoute><SnackDetails /></ProtectedRoute>} />
+
           <Route path="/drink" element={<Drinks />} />
           <Route path="/drink/:id" element={<ProtectedRoute><DrinkDetails /></ProtectedRoute>} />
+
           <Route path="/dessert" element={<Dessert />} />
           <Route path="/dessert/:id" element={<ProtectedRoute><DessertDetails /></ProtectedRoute>} />
+
           <Route path="/cart" element={<Cart />} />
           <Route path="/order" element={<ProtectedRoute><Order /></ProtectedRoute>} />
 
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-
         </Routes>
       </div>
 
-      {/* 🟢 Footer Always Visible Except Login & Register */}
-    {location.pathname !== "/login" && location.pathname !== "/register" && <Footer />}
+      {/* ⬇ Footer Hidden on Login & Register */}
+      {location.pathname !== "/login" && location.pathname !== "/register" && <Footer />}
     </>
   );
 }
 
-
-
 export default function AppWrapper() {
-  return (
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  );
+  return (
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  );
 }
+
+
 
 
 

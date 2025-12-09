@@ -1,25 +1,26 @@
 import React, { useEffect, useState } from "react";
-import "./Css/Veg.css";
-import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
 import { addToCart, fetchDessertProducts } from "../store";
 import usePagination from "./usePagination";
+import "./Css/Veg.css";
 import { toast } from "react-toastify";
 
 function Desserts() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  // 📌 FETCH DESSERTS FROM API
+  // 📌 Fetch Desserts
   useEffect(() => {
     dispatch(fetchDessertProducts());
   }, [dispatch]);
 
-  // 📌 GET DATA FROM REDUX STORE
   const { dessertItems = [], loading, error } = useSelector(
     (state) => state.products
   );
+  const { cart = [] } = useSelector((state) => state.cart);
 
-  // 🍰 FILTER & PAGINATION STATES
+  // 🍰 Filters & Pagination states
   const [searchTerm, setSearchTerm] = useState("");
   const [itemsPerPage, setItemsPerPage] = useState(4);
   const [selectedRanges, setSelectedRanges] = useState([]);
@@ -28,7 +29,7 @@ function Desserts() {
   const priceRanges = [
     { id: 1, min: 0, max: 50, label: "₹0 – ₹50" },
     { id: 2, min: 50, max: 100, label: "₹50 – ₹100" },
-    { id: 3, min: 100, max: 200, label: "₹100 – ₹200" }
+    { id: 3, min: 100, max: 200, label: "₹100 – ₹200" },
   ];
 
   const toggleRange = (id) => {
@@ -38,7 +39,7 @@ function Desserts() {
     setCurrentPage(1);
   };
 
-  // 🔍 FILTERING DATA
+  // 🔍 Filtering
   const filteredItems = dessertItems.filter((item) => {
     const matchSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchPrice =
@@ -50,11 +51,14 @@ function Desserts() {
     return matchSearch && matchPrice;
   });
 
-  // 🔢 PAGINATION
+  // 🔢 Pagination
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentItems = filteredItems.slice(startIndex, startIndex + itemsPerPage);
   const { pageNumbers, goToPage } = usePagination({ currentPage, totalPages });
+
+  // Check if item exists in cart
+  const isInCart = (id) => cart.some((p) => p._id === id);
 
   return (
     <div className="container">
@@ -69,7 +73,6 @@ function Desserts() {
           value={searchTerm}
           onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
         />
-
         <select
           className="items-dropdown"
           value={itemsPerPage}
@@ -82,7 +85,7 @@ function Desserts() {
         </select>
       </div>
 
-      {/* 💰 PRICE FILTER */}
+      {/* 💰 Price Filters */}
       <div className="price-checkbox-row">
         {priceRanges.map((range) => (
           <label key={range.id} className="custom-checkbox-label">
@@ -96,21 +99,22 @@ function Desserts() {
         ))}
       </div>
 
-      {/* LOADING & ERROR */}
+      {/* ⏳ Loading & ❌ Error */}
       {loading && <p className="text-center text-info">Loading Dessert Items...</p>}
       {error && <p className="text-center text-danger">{error}</p>}
+      {!loading && currentItems.length === 0 && (
+        <p className="text-center text-muted">No items found!</p>
+      )}
 
-      {/* 🍪 Cards */}
+      {/* 🍪 Dessert Cards */}
       <div className="row fade-animation">
-        {!loading && currentItems.length === 0 && (
-          <p className="text-center text-muted">No items found!</p>
-        )}
-
         {currentItems.map((item) => (
           <div key={item._id} className="col-md-3 mb-4">
             <div className="card item-card h-100 shadow-sm animated-card">
-
-              <Link to={`/dessert/${item._id}`} style={{ textDecoration: "none", color: "inherit" }}>
+              <Link
+                to={`/dessert/${item._id}`}
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
                 <img src={item.image} className="card-img-top img-fluid" alt={item.name} />
               </Link>
 
@@ -125,21 +129,29 @@ function Desserts() {
                 <div className="d-flex justify-content-between align-items-center mt-3">
                   <span className="badge bg-warning text-dark">{item.ratings} ★</span>
 
-                  <button
-                    className="btn btn-outline-danger btn-sm rounded-pill"
-                    onClick={() => {
-                      dispatch(addToCart(item));
-                      toast.success(`${item.name} added to cart!`, {
-                        position: "top-right",
-                        autoClose: 1500
-                      });
-                    }}
-                  >
-                    <i className="fas fa-cart-plus"></i> Add to Cart
-                  </button>
+                  {isInCart(item._id) ? (
+                    <button
+                      className="btn btn-success btn-sm rounded-pill"
+                      onClick={() => navigate("/cart")}
+                    >
+                      🛒 Go to Cart
+                    </button>
+                  ) : (
+                    <button
+                      className="btn btn-outline-danger btn-sm rounded-pill"
+                      onClick={() => {
+                        dispatch(addToCart(item));
+                        toast.success(`${item.name} added to cart!`, {
+                          position: "top-right",
+                          autoClose: 1500,
+                        });
+                      }}
+                    >
+                      <i className="fas fa-cart-plus"></i> Add to Cart
+                    </button>
+                  )}
                 </div>
               </div>
-
             </div>
           </div>
         ))}

@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { addToCart, fetchVegProducts } from "../store";
 import usePagination from "./usePagination";
 import "./Css/Veg.css";
 import { toast } from "react-toastify";
 
 function Veg() {
-  
 
   const [searchTerm, setSearchTerm] = useState("");
   const [itemsPerPage, setItemsPerPage] = useState(4);
@@ -21,23 +20,7 @@ function Veg() {
   ];
 
   const dispatch = useDispatch();
-
-  // // Fetch Veg Products
-  // useEffect(() => {
-  //   dispatch(fetchVegProducts())
-  //     .unwrap()
-  //     .then((data) => {
-  //       // Backend should send { data, status } or similar
-  //       setStatusCode(data?.status || 200); // use backend status if sent, else default 200
-  //     })
-  //     .catch((err) => {
-  //       // Backend error response with status code
-  //       setStatusCode(err?.response?.status || 500); // fallback to 500
-  //     });
-  // }, []);
-
-  //   const { vegItems , loading, error } = useSelector((state) => state.products);
-
+  const navigate = useNavigate();
 
   // Fetch Veg Products
   useEffect(() => {
@@ -45,6 +28,10 @@ function Veg() {
   }, []);
 
   const { vegItems = [], loading, error } = useSelector((state) => state.products);
+  const { cart = [] } = useSelector((state) => state.cart);
+
+  // Check product exists in cart
+  const isInCart = (id) => cart.some((p) => p._id === id);
 
   // Filtering
   const filteredItems = vegItems.filter((item) => {
@@ -158,25 +145,33 @@ function Veg() {
                 <div className="d-flex justify-content-between align-items-center mt-3">
                   <span className="badge bg-warning text-dark">{item.ratings} ★</span>
 
-                  <button
-                    className="btn btn-outline-danger btn-sm rounded-pill"
-                    onClick={() =>{ dispatch(addToCart(item));
-                      toast.success(`${item.name} added to cart!`,
-                      {
-                        position: "top-right",
-                        autoClose: 1500,
-                        closeOnClick: true,
-                        pauseOnHover: true,
-                        draggable: true,
-                      }
-                      );
-                    }}
-                  >
-                    <i className="fas fa-cart-plus"></i> Add to Cart
-                  </button>
+                  {/* Add to Cart / Go to Cart Button */}
+                  {isInCart(item._id) ? (
+                    <button
+                      className="btn btn-success btn-sm rounded-pill"
+                      onClick={() => navigate("/cart")}
+                    >
+                      🛒 Go to Cart
+                    </button>
+                  ) : (
+                    <button
+                      className="btn btn-outline-danger btn-sm rounded-pill"
+                      onClick={() => {
+                        dispatch(addToCart(item));
+                        toast.success(`${item.name} added to cart!`, {
+                          position: "top-right",
+                          autoClose: 1500,
+                          closeOnClick: true,
+                          pauseOnHover: true,
+                          draggable: true, 
+                        });
+                      }}
+                    >
+                      <i className="fas fa-cart-plus"></i> Add to Cart
+                    </button>
+                  )}
                 </div>
               </div>
-
             </div>
           </div>
         ))}
@@ -187,7 +182,10 @@ function Veg() {
         <div className="pagination-container d-flex justify-content-center mt-4">
           <ul className="pagination modern-pagination">
             <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => setCurrentPage(goToPage(currentPage - 1))}>
+              <button
+                className="page-link"
+                onClick={() => setCurrentPage(goToPage(currentPage - 1))}
+              >
                 ◀ Prev
               </button>
             </li>
@@ -201,7 +199,10 @@ function Veg() {
             ))}
 
             <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => setCurrentPage(goToPage(currentPage + 1))}>
+              <button
+                className="page-link"
+                onClick={() => setCurrentPage(goToPage(currentPage + 1))}
+              >
                 Next ▶
               </button>
             </li>

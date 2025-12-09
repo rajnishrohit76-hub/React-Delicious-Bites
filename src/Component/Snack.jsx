@@ -1,57 +1,58 @@
 import React, { useEffect, useState } from "react";
-import "./Css/Veg.css";
-import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
 import { addToCart, fetchSnackProducts } from "../store";
 import usePagination from "./usePagination";
+import "./Css/Veg.css";
 import { toast } from "react-toastify";
 
 function Snack() {
-  const dispatch = useDispatch();
-
-  // 📌 Fetch Snack Products
-  useEffect(() => {
-    dispatch(fetchSnackProducts());
-  }, [dispatch]);
-
-  // 📌 GET ITEMS FROM REDUX
-  const { snackItems = [], loading, error } = useSelector(
-    (state) => state.products
-  );
-
-  // 🍟 SEARCH, ITEMS PER PAGE, PRICE FILTER, PAGINATION
   const [searchTerm, setSearchTerm] = useState("");
   const [itemsPerPage, setItemsPerPage] = useState(4);
   const [selectedRanges, setSelectedRanges] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // 💰 PRICE RANGES
   const priceRanges = [
-    { id: 1, min: 0, max: 30, label: "₹0 – ₹30" },
-    { id: 2, min: 30, max: 60, label: "₹30 – ₹60" },
-    { id: 3, min: 60, max: 100, label: "₹60 – ₹100" }
+    { id: 1, min: 0, max: 100, label: "₹0 – ₹100" },
+    { id: 2, min: 100, max: 200, label: "₹100 – ₹200" },
+    { id: 3, min: 200, max: 350, label: "₹200 – ₹350" },
   ];
 
-  // 🧮 FILTER ITEMS
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  // Fetch Snack Products
+  useEffect(() => {
+    dispatch(fetchSnackProducts());
+  }, [dispatch]);
+
+  const { snackItems = [], loading, error } = useSelector(
+    (state) => state.products
+  );
+  const { cart = [] } = useSelector((state) => state.cart);
+
+  // Check if item is in cart
+  const isInCart = (id) => cart.some((p) => p._id === id);
+
+  // Filtering
   const filteredItems = snackItems.filter((item) => {
     const matchSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchPrice =
       selectedRanges.length === 0 ||
       selectedRanges.some((rangeId) => {
-        const r = priceRanges.find((x) => x.id === rangeId);
-        return item.price >= r.min && item.price <= r.max;
+        const range = priceRanges.find((r) => r.id === rangeId);
+        return item.price >= range.min && item.price <= range.max;
       });
     return matchSearch && matchPrice;
   });
 
-  // 🔢 PAGINATION
+  // Pagination
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentItems = filteredItems.slice(startIndex, startIndex + itemsPerPage);
 
   const { pageNumbers, goToPage } = usePagination({ currentPage, totalPages });
 
-  // 📝 HANDLERS
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
     setCurrentPage(1);
@@ -71,9 +72,9 @@ function Snack() {
 
   return (
     <div className="container">
-      <h1 className="text-center mb-2 veg-title hero">Delicious Snacks</h1>
+      <h1 className="text-center mb-2 veg-title hero">Snack Delights</h1>
 
-      {/* 🔍 Search + Items per page */}
+      {/* Search + Items per page */}
       <div className="filter-top-row">
         <input
           type="text"
@@ -95,7 +96,7 @@ function Snack() {
         </select>
       </div>
 
-      {/* 💰 PRICE FILTERS */}
+      {/* Price Filters */}
       <div className="price-checkbox-row">
         {priceRanges.map((range) => (
           <label key={range.id} className="custom-checkbox-label">
@@ -109,14 +110,14 @@ function Snack() {
         ))}
       </div>
 
-      {/* LOADING & ERROR */}
-      {loading && <p className="text-center text-info">Loading Snacks...</p>}
+      {/* Loading & Error */}
+      {loading && <p className="text-center text-info">Loading Snack Items...</p>}
       {error && <p className="text-center text-danger">{error}</p>}
 
-      {/* 🍟 CARDS */}
+      {/* Cards */}
       <div className="row fade-animation">
         {!loading && currentItems.length === 0 && (
-          <p className="text-center text-muted">No snacks found!</p>
+          <p className="text-center text-muted">No items found!</p>
         )}
 
         {currentItems.map((item) => (
@@ -126,32 +127,49 @@ function Snack() {
                 to={`/snack/${item._id}`}
                 style={{ textDecoration: "none", color: "inherit" }}
               >
-                <img src={item.image} className="card-img-top img-fluid" alt={item.name} />
+                <img
+                  src={item.image}
+                  className="card-img-top img-fluid"
+                  alt={item.name}
+                />
               </Link>
 
               <div className="card-body">
                 <h5 className="card-title d-flex justify-content-between">
                   {item.name}
-                  <span className="badge bg-success">₹{item.price}</span>
+                  <span className="badge bg-warning">₹{item.price}</span>
                 </h5>
 
                 <p className="text-muted small">{item.description}</p>
 
                 <div className="d-flex justify-content-between align-items-center mt-3">
-                  <span className="badge bg-success">{item.ratings} ★</span>
+                  <span className="badge bg-success text-dark">{item.ratings} ★</span>
 
-                  <button
-                    className="btn btn-outline-danger btn-sm rounded-pill"
-                    onClick={() => {
-                      dispatch(addToCart(item));
-                      toast.success(`${item.name} added to cart!`, {
-                        position: "top-right",
-                        autoClose: 1500
-                      });
-                    }}
-                  >
-                    <i className="fas fa-cart-plus"></i> Add to Cart
-                  </button>
+                  {/* Add to Cart / Go to Cart */}
+                  {isInCart(item._id) ? (
+                    <button
+                      className="btn btn-success btn-sm rounded-pill"
+                      onClick={() => navigate("/cart")}
+                    >
+                      🛒 Go to Cart
+                    </button>
+                  ) : (
+                    <button
+                      className="btn btn-outline-danger btn-sm rounded-pill"
+                      onClick={() => {
+                        dispatch(addToCart(item));
+                        toast.success(`${item.name} added to cart!`, {
+                          position: "top-right",
+                          autoClose: 1500,
+                          closeOnClick: true,
+                          pauseOnHover: true,
+                          draggable: true,
+                        });
+                      }}
+                    >
+                      <i className="fas fa-cart-plus"></i> Add to Cart
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -159,7 +177,7 @@ function Snack() {
         ))}
       </div>
 
-      {/* 🔢 PAGINATION */}
+      {/* Pagination */}
       {!loading && totalPages > 1 && (
         <div className="pagination-container d-flex justify-content-center mt-4">
           <ul className="pagination modern-pagination">
