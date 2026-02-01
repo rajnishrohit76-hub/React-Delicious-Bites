@@ -7,26 +7,27 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 // Imports
-import Home from "./Component/Home";
-import Veg from "./Component/Veg";
-import NonVeg from "./Component/NonVeg";
-import Snack from "./Component/Snack";
-import Drinks from "./Component/Drinks";
-import Dessert from "./Component/Dessert";
-import Cart from "./Component/Cart";
-import VegDetails from "./Component/VegDetails";
-import NonVegDetails from "./Component/NonVegDetails";
-import SnackDetails from "./Component/SnackDetails";
-import DrinkDetails from "./Component/DrinksDetails";
-import DessertDetails from "./Component/DessertDetails";
-import Footer from "./Component/Footer";
+import Home from "./pages/Home";
+import Veg from "./pages/Veg";
+import NonVeg from "./pages/NonVeg";
+import Snack from "./pages/Snack";
+import Drinks from "./pages/Drinks";
+import Dessert from "./pages/Dessert";
+import Cart from "./pages/Cart";
+import VegDetails from "./pages/VegDetails";
+import NonVegDetails from "./pages/NonVegDetails";
+import SnackDetails from "./pages/SnackDetails";
+import DrinkDetails from "./pages/DrinksDetails";
+import DessertDetails from "./pages/DessertDetails";
+import Footer from "./components/Footer";
+import Navbar from "./components/Navbar";
 
 // Auth
-import ProtectedRoute from "./Component/ProtectedRoute";
-import Login from "./Component/Login";
-import Register from "./Component/Register";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 import { logout } from "./store";
-import Order from "./Component/Order";
+import Order from "./pages/Order";
 
 function App() {
   const dispatch = useDispatch();
@@ -35,87 +36,12 @@ function App() {
 
   const token = useSelector((state) => state.auth.token);
 
-  // Cart count
-  const cartItems = useSelector((state) => state.cart.cart) || [];
-  const cartItemCount = Array.isArray(cartItems)
-    ? cartItems.reduce((total, item) => total + item.quantity, 0)
-    : 0;
-
-  const isActive = (route) => (location.pathname === route ? "nav-link active" : "nav-link");
-
-  // 🔹 Close mobile menu on link click
-  const closeMobileMenu = () => {
-    const navCollapse = document.getElementById("navbarNav");
-    if (navCollapse.classList.contains("show")) {
-      // Using Bootstrap collapse method
-      navCollapse.classList.remove("show");
-    }
-  };
-
   return (
     <>
       <ToastContainer position="top-right" autoClose={3000} />
 
-      {/* 🟢 Navbar */}
-      <nav className="navbar navbar-expand-lg navbar-custom fixed-top">
-        <div className="container">
-
-          {/* 🌟 LOGO + BRAND */}
-          <div className="navbar-brand d-flex align-items-center">
-            <Link to="/home" onClick={closeMobileMenu}>
-              <img src="/logo.avif" alt="logo"
-                style={{ width: 45, height: 45, marginRight: 10, borderRadius: 8 }} />
-            </Link>
-            <div>
-              <Link to="/home" className="text-decoration-none text-white bites" onClick={closeMobileMenu}>Delicious Bites</Link>
-              <div className="brand-tagline">Fresh • Fast • Flavorful</div>
-            </div>
-          </div>
-
-          <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span className="navbar-toggler-icon"></span>
-          </button>
-
-          {/* 🌐 Navigation Links */}
-          <div className="collapse navbar-collapse" id="navbarNav">
-            <ul className="navbar-nav ms-auto">
-              <li className="nav-item"><Link to="/home" className={isActive("/home")} onClick={closeMobileMenu}>Home</Link></li>
-              <li className="nav-item"><Link to="/veg" className={isActive("/veg")} onClick={closeMobileMenu}>Veg</Link></li>
-              <li className="nav-item"><Link to="/nonveg" className={isActive("/nonveg")} onClick={closeMobileMenu}>Non-Veg</Link></li>
-              <li className="nav-item"><Link to="/snack" className={isActive("/snack")} onClick={closeMobileMenu}>Snack</Link></li>
-              <li className="nav-item"><Link to="/drink" className={isActive("/drink")} onClick={closeMobileMenu}>Drinks</Link></li>
-              <li className="nav-item"><Link to="/dessert" className={isActive("/dessert")} onClick={closeMobileMenu}>Dessert</Link></li>
-
-              {/* 🛒 CART */}
-              <li className="nav-item position-relative">
-                <Link to="/cart" className={isActive("/cart")} onClick={closeMobileMenu}>Cart</Link>
-                {cartItemCount > 0 && <span className="cart-badge">{cartItemCount}</span>}
-              </li>
-
-              <li className="nav-item"><Link to="/order" className={isActive("/order")} onClick={closeMobileMenu}>Order</Link></li>
-
-              {/* 🔐 LOGIN / LOGOUT */}
-              {token ? (
-                <li className="nav-item">
-                  <button
-                    className="btn btn-danger ms-3"
-                    onClick={() => {
-                      dispatch(logout());
-                      navigate("/login");
-                      closeMobileMenu();
-                    }}>
-                    Logout
-                  </button>
-                </li>
-              ) : (
-                <li className="nav-item">
-                  <Link to="/login" className={isActive("/login")} onClick={closeMobileMenu}>Sign In</Link>
-                </li>
-              )}
-            </ul>
-          </div>
-        </div>
-      </nav>
+      {/* 🟢 Navbar Component */}
+      <Navbar />
 
       {/* ROUTES */}
       <div className="main-content-area">
@@ -159,245 +85,4 @@ export default function AppWrapper() {
     </BrowserRouter>
   );
 }
-
-
-
-
-
-
-
-
-
-// ========================================================================================
-
-
-// import React from "react";
-// import { BrowserRouter, Routes, Route, Link, Navigate, useNavigate, useLocation } from "react-router-dom";
-// import { useDispatch, useSelector } from "react-redux";
-// import "./App.css";
-// import { ToastContainer } from "react-toastify";
-// import "react-toastify/dist/ReactToastify.css";
-
-// // Imports
-// import Home from "./Component/Home";
-// import Veg from "./Component/Veg";
-// import NonVeg from "./Component/NonVeg";
-// import Snack from "./Component/Snack";
-// import Drinks from "./Component/Drinks";
-// import Dessert from "./Component/Dessert";
-// import Cart from "./Component/Cart";
-// import VegDetails from "./Component/VegDetails";
-// import NonVegDetails from "./Component/NonVegDetails";
-// import SnackDetails from "./Component/SnackDetails";
-// import DrinkDetails from "./Component/DrinksDetails";
-// import DessertDetails from "./Component/DessertDetails";
-
-// // Auth
-// import ProtectedRoute from "./Component/ProtectedRoute";
-// import Login from "./Component/Login";
-// import Register from "./Component/Register";
-// import { logout } from "./store"; // ⬅ Make sure path is correct
-// import Order from "./Component/Order";
-
-// function App() {
-//   const dispatch = useDispatch();
-//   const navigate = useNavigate();
-//   const location = useLocation();
-
-//   const token = useSelector((state) => state.auth.token);
-//   const cartItems = useSelector((state) => state.cart);
-
-//   const cartItemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
-
-//   const isActive = (route) => (location.pathname === route ? "nav-link active" : "nav-link");
-
-//   return (
-//     <>
-//       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
-
-//       {/* NAVBAR */}
-//       <nav className="navbar navbar-expand-lg navbar-custom fixed-top">
-//         <div className="container">
-//           <div className="navbar-brand d-flex align-items-center">
-//             <Link to="/home"><img src="/logo.avif" alt="logo" style={{ width: 45, height: 45, marginRight: 10, borderRadius: 8 }} /></Link>
-//             <div>
-//               <div><Link to="/home" className="text-decoration-none text-white">Delicious Bites</Link></div>
-//               <div className="brand-tagline">Fresh • Fast • Flavorful</div>
-//             </div>
-//           </div>
-
-//           <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-//             <span className="navbar-toggler-icon"></span>
-//           </button>
-
-//           <div className="collapse navbar-collapse" id="navbarNav">
-//             <ul className="navbar-nav ms-auto">
-//               <li className="nav-item"><Link to="/home" className={isActive("/home")}>Home</Link></li>
-//               <li className="nav-item"><Link to="/veg" className={isActive("/veg")}>Veg</Link></li>
-//               <li className="nav-item"><Link to="/nonveg" className={isActive("/nonveg")}>Non-Veg</Link></li>
-//               <li className="nav-item"><Link to="/snack" className={isActive("/snack")}>Snack</Link></li>
-//               <li className="nav-item"><Link to="/drink" className={isActive("/drink")}>Drinks</Link></li>
-//               <li className="nav-item"><Link to="/dessert" className={isActive("/dessert")}>Dessert</Link></li>
-
-//               <li className="nav-item position-relative">
-//                 <Link to="/cart" className={isActive("/cart")}>Cart</Link>
-//                 {cartItemCount > 0 && <span className="cart-badge">{cartItemCount}</span>}
-//               </li>
-
-//               <li className="nav-item"><Link to="/order" className={isActive("/order")}>Order</Link></li>
-
-//               {token ? (
-//                 <li className="nav-item">
-//                   <button
-//                     className="btn btn-danger ms-3"
-//                     onClick={() => {
-//                       dispatch(logout());
-//                       navigate("/login");
-//                     }}>
-//                     Logout
-//                   </button>
-//                 </li>
-//               ) : (
-//                 <li className="nav-item">
-//                   <Link to="/login" className={isActive("/login")}>Sign In</Link>
-//                 </li>
-//               )}
-//             </ul>
-//           </div>
-//         </div>
-//       </nav>
-
-//       {/* ROUTES */}
-//       <div style={{ marginTop: 120 }}>
-//         <Routes>
-//           <Route path="/" element={<Navigate to="/home" />} />
-//           <Route path="/home" element={<Home />} />
-//           <Route path="/veg" element={<Veg />} />
-          
-//           {/* Protected Routes */}
-//           <Route path="/veg/:id" element={<ProtectedRoute><VegDetails /></ProtectedRoute>} />
-//           <Route path="/nonveg" element={<NonVeg />} />
-//           <Route path="/nonveg/:id" element={<ProtectedRoute><NonVegDetails /></ProtectedRoute>} />
-//           <Route path="/snack" element={<Snack />} />
-//           <Route path="/snack/:id" element={<ProtectedRoute><SnackDetails /></ProtectedRoute>} />
-//           <Route path="/drink" element={<Drinks />} />
-//           <Route path="/drink/:id" element={<ProtectedRoute><DrinkDetails /></ProtectedRoute>} />
-//           <Route path="/dessert" element={<Dessert />} />
-//           <Route path="/dessert/:id" element={<ProtectedRoute><DessertDetails /></ProtectedRoute>} />
-//           <Route path="/cart" element={<Cart />} />
-//           <Route path="/order" element={<ProtectedRoute><Order /></ProtectedRoute>} />
-
-//           {/* Auth */}
-//           <Route path="/login" element={<Login />} />
-//           <Route path="/register" element={<Register />} />
-
-//         </Routes>
-//       </div>
-//     </>
-//   );
-// }
-
-// export default function AppWrapper() {
-//   return (
-//     <BrowserRouter>
-//       <App />
-//     </BrowserRouter>
-//   );
-// }
-
-// =========================================================================================
-
-// import React from "react";
-// import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from "react-router-dom";
-// import { useSelector } from "react-redux";
-// import "./App.css";
-
-// // Normal imports (no lazy)
-// import Home from "./Component/Home";
-// import Veg from "./Component/Veg";
-// import NonVeg from "./Component/NonVeg";
-// import Snack from "./Component/Snack";
-// import Drinks from "./Component/Drinks";
-// import Dessert from "./Component/Dessert";
-// import Cart from "./Component/Cart";
-// import VegDetails from "./Component/VegDetails";
-// import NonVegDetails from "./Component/NonVegDetails";
-// import SnackDetails from "./Component/SnackDetails";
-// import DrinkDetails from "./Component/DrinksDetails";
-// import DessertDetails from "./Component/DessertDetails";
-
-// function App() {
-//   const location = useLocation();
-//   const cartItems = useSelector((state) => state.cart);
-//   const cartItemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
-
-//   const isActive = (route) => (location.pathname === route ? "nav-link active" : "nav-link");
-
-//   return (
-//     <>
-//       {/* NAVBAR */}
-//       <nav className="navbar navbar-expand-lg navbar-custom fixed-top">
-//         <div className="container">
-//           <div className="navbar-brand d-flex align-items-center">
-//             <img src="/logo.avif" alt="logo" style={{ width: 45, height: 45, marginRight: 10, borderRadius: 8 }} />
-//             <div>
-//               <div>Delicious Bites</div>
-//               <div className="brand-tagline">Fresh • Fast • Flavorful</div>
-//             </div>
-//           </div>
-
-//           <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-//             <span className="navbar-toggler-icon"></span>
-//           </button>
-
-//           <div className="collapse navbar-collapse" id="navbarNav">
-//             <ul className="navbar-nav ms-auto">
-//               <li className="nav-item"><Link to="/home" className={isActive("/home")}>Home</Link></li>
-//               <li className="nav-item"><Link to="/veg" className={isActive("/veg")}>Veg</Link></li>
-//               <li className="nav-item"><Link to="/nonveg" className={isActive("/nonveg")}>Non-Veg</Link></li>
-//               <li className="nav-item"><Link to="/snack" className={isActive("/snack")}>Snack</Link></li>
-//               <li className="nav-item"><Link to="/drink" className={isActive("/drink")}>Drinks</Link></li>
-//               <li className="nav-item"><Link to="/dessert" className={isActive("/dessert")}>Dessert</Link></li>
-//               <li className="nav-item position-relative">
-//                 <Link to="/cart" className={isActive("/cart")}>Cart</Link>
-//                 {cartItemCount > 0 && <span className="cart-badge">{cartItemCount}</span>}
-//               </li>
-//               <li className="nav-item"><Link to="/signin" className={isActive("/signin")}>Sign In</Link></li>
-//             </ul>
-//           </div>
-//         </div>
-//       </nav>
-
-//       {/* ROUTES */}
-//       <div style={{ marginTop: 120 }}>
-//         <Routes>
-//           <Route path="/" element={<Navigate to="/home" />} />
-//           <Route path="/home" element={<Home />} />
-//           <Route path="/veg" element={<Veg />} />
-//           <Route path="/veg/:id" element={<VegDetails />} />
-//           <Route path="/nonveg" element={<NonVeg />} />
-//           <Route path="/nonveg/:id" element={<NonVegDetails />} />
-//           <Route path="/snack" element={<Snack />} />
-//           <Route path="/snack/:id" element={<SnackDetails />} />
-//           <Route path="/drink" element={<Drinks />} />
-//           <Route path="/drink/:id" element={<DrinkDetails />} />
-//           <Route path="/dessert" element={<Dessert />} />
-//           <Route path="/dessert/:id" element={<DessertDetails />} />
-//           <Route path="/cart" element={<Cart />} />
-//           <Route path="/signin" element={<h2 className='text-center mt-5'>Sign In Page</h2>} />
-//         </Routes>
-//       </div>
-//     </>
-//   );
-// }
-
-// function AppWrapper() {
-//   return (
-//     <BrowserRouter>
-//       <App />
-//     </BrowserRouter>
-//   );
-// }
-
-// export default AppWrapper;
 

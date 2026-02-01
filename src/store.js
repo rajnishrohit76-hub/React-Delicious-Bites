@@ -1,9 +1,9 @@
 import { configureStore, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { couponCode } from './Component/coupon';
+import { couponCode } from './utils/coupon';
 import { jwtDecode } from "jwt-decode"; // 🔹 Correct import
 import { use } from 'react';
-import api from './axiosConfig';
+import api from './api/axiosConfig';
 
 // =====================
 // Auto-Logout Feature
