@@ -106,7 +106,7 @@ function Desserts() {
           <MorphingSquare message="Loading Dessert Items..." />
         </div>
       )}
-      {error && <p className="text-center text-danger">{error}</p>}
+      {error && <p className="text-center text-danger">{error?.message || (typeof error === 'string' ? error : "An error occurred")}</p>}
       {!loading && currentItems.length === 0 && (
         <p className="text-center text-muted">No items found!</p>
       )}

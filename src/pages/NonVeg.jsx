@@ -117,7 +117,7 @@ function NonVeg() {
           <MorphingSquare message="Loading Non-Veg Items..." />
         </div>
       )}
-      {error && <p className="text-center text-danger">{error}</p>}
+      {error && <p className="text-center text-danger">{error?.message || (typeof error === 'string' ? error : "An error occurred")}</p>}
 
       {/* Cards */}
       <div className="row fade-animation">
